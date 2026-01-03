@@ -1,0 +1,95 @@
+\section{MPP: Mirror Projection Pruning}
+\label{sec:method_mpp}
+
+The TunedGNN~\cite{tunedGNN} architecture, as described in the previous section, provides a powerful and robust foundation for our framework. However, its depth and complexity lead to high computational costs during training. To address this challenge, we introduce \textbf{MPP}, a novel paradigm designed to efficiently reduce model complexity without sacrificing representational capacity.
+
+Existing GNN pruning techniques are often tightly intertwined with the training process, resulting in significant computational overhead and a lack of flexibility.
+In contrast, MPP introduces a \textbf{proxy-based, pre-training pruning} strategy.
+Its core idea is to decouple the complex pruning task by projecting the GNN to an isomorphic MLP, applying mature pruning techniques in the simpler MLP space, and then mapping the pruned structure back. This design, inspired by studies like MLPinit~\cite{MLPinit} that demonstrate GNN-MLP parameter alignment, allows us to leverage a rich ecosystem of existing pruning tools, such as DepGraph (torch-pruning)~\cite{fang2023depgraph}. Crucially, MPP serves a dual purpose in our pipeline: (1) it produces an efficient, pruned GNN to act as our \textbf{Teacher model}, and (2) it simultaneously generates a lightweight, structurally-aligned MLP to serve as our \textbf{Student model} for the final distillation stage.
+
+\subsection{Mirror Projection Pruning (MPP): Theory and Workflow}
+\label{ssec:mpp_workflow_final}
+Mirror Projection Pruning (MPP) (See Figure~\ref{fig:mpp_workflow}) is built on the structural isomorphism between common GNN layers and their MLP counterparts, extending the insight of MLPInit~\cite{MLPinit} that an MLP with the same architecture as a GNN can serve as a parameter proxy.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./context/fig/mpp.png}
+    \caption{\textbf{The high-level workflow of Mirror Projection Pruning (MPP).} A large GNN architecture is projected to a proxy MP-MLP, which is then trained and pruned. The resulting sparse structure is projected back to define the final, efficient `Pruned GNN'.}
+    \label{fig:mpp_workflow}
+\end{figure}
+
+\newpage
+Our approach generalizes this concept: an isomorphic MLP can act as an efficient surrogate for a GNN, enabling all training, pruning, and architectural search to be performed in the lightweight MLP domain. Afterward, the resulting sparse structure and weights are seamlessly mapped back to the original GNN, yielding an efficient, pruned GNN with minimal engineering effort.
+
+\subsubsection{The Principle of GNN–MLP Isomorphism}
+
+The isomorphism between GNN and MLP layers is achieved by removing the neighborhood aggregation (message-passing) operation from the GNN, resulting in a pure node-level transformation (See Figure~\ref{fig:mp-mlp_view}).
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.68\textwidth]{./context/fig/mp-mlp_view.png}
+    \caption{
+    \textbf{Structural illustration of SAGEConv and its MP-MLP projection.}
+    Left: The SAGEConv layer consists of two linear branches, one operating on neighborhood-aggregated features (Propagate).
+    Right: The SAGEConvMLP projection replaces neighborhood aggregation with a second self-branch, yielding a pure local MLP structure with identical parameterization.
+    This one-to-one mapping is fundamental to efficient pruning and parameter transfer in MPP.
+    }
+    \label{fig:mp-mlp_view}
+\end{figure}
+For example, a SAGEConv layer comprises two linear branches—one operating on the node's own features, the other on the aggregated features from its neighbors. By eliminating the propagation step, we obtain an MLP layer (SAGEConvMLP) with two self-branches, preserving both parameterization and output dimension.
+
+This theoretical foundation ensures that all layers, hidden dimensions, and normalization structures in the original GNN are exactly matched by the MP-MLP, making direct parameter and mask transfer possible in both directions.
+
+\newpage
+\subsubsection{Step 1: Mirror Projection---GNN to MP-MLP}
+
+Given a TunedGNN backbone (e.g., TunedGNN~\cite{tunedGNN}), the first step is to construct a mirror-projected MLP (MP-MLP) by replacing each GNN-layer with its isomorphic ConvMLP layer. All message-passing operations are removed, while linear transformations, normalization, and nonlinearity are preserved. This results in an untrained MP-MLP network that is structurally identical to the original GNN, as shown in Figure~\ref{fig:mpp_step1}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth]{./context/fig/mpp_step1.png}
+    \caption{\textbf{Mirror Projection from GNN to MP-MLP.}
+    Each GNN-layer is replaced by a corresponding ConvMLP layer, yielding an untrained MP-MLP that mirrors the GNN architecture.}
+    \label{fig:mpp_step1}
+\end{figure}
+
+\subsubsection{Step 2: Training and Pruning in MP-MLP Space}
+
+All subsequent training and pruning are performed in the MP-MLP domain. The MP-MLP is first trained on the completed feature set for the target task, then pruned using state-of-the-art MLP pruning algorithms (e.g., LAMP~\cite{lee2020layer}, DepGraph~\cite{fang2023depgraph}), which efficiently remove redundant weights or channels based on importance. This step is illustrated in Figure~\ref{fig:mpp_step2}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth]{./context/fig/mpp_step2.png}
+    \caption{\textbf{Proxy Training and Pruning in MP-MLP.}
+    The MP-MLP is trained and pruned to yield a sparse, efficient student model.}
+    \label{fig:mpp_step2}
+\end{figure}
+
+\subsubsection{Step 3: Inverse Projection---Parameter and Mask Transfer Back to GNN}
+
+Once pruning is completed, the sparse weights and binary pruning mask from the MP-MLP are mapped directly back to the original GNN, thanks to the strict structural alignment. Each pruned ConvMLP layer's parameters and mask are copied to the corresponding GNN-layer, transforming the large, dense GNN into a compact, sparse network without modifying the original codebase. See Figure~\ref{fig:mpp_step3}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.92\textwidth]{./context/fig/mpp_step3.png}
+    \caption{\textbf{Inverse Projection from Pruned MP-MLP to Pruned GNN.}
+    The pruning mask and weights are transferred directly, instantly producing a sparse, efficient GNN.}
+    \label{fig:mpp_step3}
+\end{figure}
+
+\subsubsection{Advantages of MPP}
+
+\begin{itemize}
+    \item \textbf{Computational efficiency:} Training and pruning are much faster in the MLP domain, as no neighborhood aggregation is needed.
+    \item \textbf{Structural flexibility:} Any MLP pruning or search technique can be applied to the proxy MP-MLP and directly benefit the GNN.
+    \item \textbf{Seamless transfer:} Strict one-to-one mapping enables direct synchronization of parameters and masks between MLP and GNN.
+    \item \textbf{Minimal engineering overhead:} No modification to the GNN implementation is required; all changes are applied through parameter transfer.
+\end{itemize}
+
+This mirror projection--pruning--inverse projection workflow offers a highly flexible, efficient, and practical GNN compression paradigm, making advanced pruning and architectural optimization accessible for real-world graph learning tasks.
+
+\newpage
+\subsubsection{Implementation and Pseudocode}
+The entire process is outlined in Algorithm~\ref{algo:mpp}.
+This workflow efficiently produces a pruned teacher GNN and a structurally-aligned student MLP, perfectly setting the stage for our final knowledge transfer module.
+
+\input{./context/4-methodology/_mpp_pseudocode}

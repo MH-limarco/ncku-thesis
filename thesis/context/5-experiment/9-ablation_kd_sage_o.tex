@@ -1,0 +1,45 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.3} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+ \centering
+\begin{tabular}{C{0.06\textwidth}C{0.06\textwidth}C{0.06\textwidth}|C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}|C{0.11\textwidth}}
+\textbf{\footnotesize KRD}& \textbf{\footnotesize MP-MLP} & \textbf{\footnotesize CWDLoss} & \textbf{\small Computers} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS} &	\textbf{\small Physics} & \textbf{\small Average$\uparrow$}\\
+
+\midrule
+\textcolor{red}{\XSolidBrush} & \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 85.18	& 93.37 & 77.28 & 93.68	&96.50	& 89.20
+\\
+
+\textcolor{green1}{\CheckmarkBold}& \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  &  \textbf{\textcolor{green1}{91.37}}	& \textbf{\textcolor{green1}{95.1}}	& \textbf{\textcolor{red}{80.18}}	&93.75	& \textbf{\textcolor{green1}{97.14}}	& \textbf{\textcolor{red}{91.51}}
+
+
+{\textbf{\small 2.31$\uparrow$}}\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{red}{\XSolidBrush}   &87.07&	\textbf{\textcolor{red}{94.27}}&	\textbf{\textcolor{green1}{80.52}}&	\textbf{\textcolor{green1}{96.46}} &	\textbf{\textcolor{red}{96.99}}&91.06
+
+
+{\textbf{\small 1.86$\uparrow$ }}
+\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{green1}{\CheckmarkBold}& \textbf{\textcolor{red}{90.89}}&	94.92&	79.60&	\textbf{\textcolor{red}{96.44}}&	96.50&	\textbf{\textcolor{green1}{91.68}}
+
+
+{\textbf{\small 2.48$\uparrow$ }}
+\\
+
+ \bottomrule
+ \end{tabular}
+ \caption{\textbf{Ablation study of KRD, MP-MLP, and CWD-loss components in the MP-KRD module on medium-scale datasets using the SAGE model.} The table reports test accuracy on Computers, Photo, WikiCS, CS, and Physics datasets for different component combinations. Avg Accuracy indicates the average accuracy and relative change. The best, and second-best results are highlighted in \textbf{\textcolor{green1}{green}}, and \textbf{\textcolor{red}{red}}}
+ \label{tab:ablation_kd_sage}
+ \end{table}
+\endgroup

@@ -1,0 +1,35 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+
+\begin{table}[h]
+    \centering
+\begin{tabular}{L{0.15\textwidth} | cc}
+\toprule
+
+\textbf{\small Prune Rate} & \textbf{\small GFLOPs$\downarrow$} & \textbf{\small Inference Time (ms)$\downarrow$} \\
+\midrule
+0.0 & 275.01 & 15.76 \\
+0.5 & 132.70 & 6.54  \\
+0.6 & 104.96 &  6.46 \\
+0.7 & 78.15 & 5.69 \\
+0.8 & 51.72 &  3.69  \\
+0.9 & 25.67 & 2.79 \\
+\bottomrule
+\end{tabular}
+
+\caption{\textbf{Impact of MPP pruning on FLOPs and inference time of the GCN model.} Increasing the prune rate substantially reduces both computational cost (GFLOPs) and inference time, demonstrating the efficiency gains enabled by the MPP pruning strategy.}
+\label{tab:efficency_float_inference}
+\end{table}
+\endgroup

@@ -1,0 +1,29 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+%\renewcommand{\arraystretch}{1.12} % 增加行高，表格更寬鬆
+
+\begin{tabular}{L{0.16\textwidth}|C{0.15\textwidth}C{0.175\textwidth}L{0.21\textwidth}L{0.21\textwidth}}
+\toprule
+\textbf{Method} & \textbf{\small Imputation Performance} & \textbf{\small Computational Cost} & \textbf{\small Key Idea} & \textbf{\small Key Limitation} \\
+\midrule
+Zero/Mean & Low & Very Low & Constant Filling & Unable to capture characteristic distribution \\
+LP~\cite{LP} & Low/Medium & Very Low & Feature Replacement & Ignore existing features \\
+PaGNN~\cite{PaGNN} & Medium & Very High & Learnable Method & Sensitive to noise, poor scalability \\
+GCNMF~\cite{GCNMF} & Medium & Very High & Matrix Factorization, Learnable Method & Sensitive to noise, poor scalability \\
+FP~\cite{FP} & Medium & Low & Feature Propagtion-based & Insensitive to differences between features\\
+PCFI~\cite{PCFI} & High & High & Confidence-aware Feature Propagtion & Channel-by-channel calculation, poor scalability \\
+\textbf{APCFI(Ours)} & \textbf{High} & \textbf{Low} & Approximate Confidence \& Joint Channel Diffusion & Not applicable to heterogeneous graphs\\
+
+\midrule
+\end{tabular}
+\caption{\textbf{Comparison of representative feature imputation methods.}}
+\label{tab:method_imputaion}
+\endgroup

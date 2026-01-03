@@ -1,0 +1,43 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{3}{white}{mygray}
+
+
+\renewcommand{\arraystretch}{1.1} % 增加行高，表格更寬鬆
+
+
+
+\begin{table}[H]
+     \centering
+    \begin{tabular}{L{0.265\textwidth}|L{0.15\textwidth}L{0.15\textwidth}L{0.15\textwidth}L{0.15\textwidth}|C{0.11\textwidth}}
+\textbf{} & \textbf{\small Computers} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS}\\
+  \textbf{\small Model} & \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} &  \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))}& \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} &   \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} & \textbf{\small Average} \textbf{\footnotesize Accuracy}\\
+
+         \midrule
+         {\small SGFormer} & 92.00 \textbf{\scriptsize (5.95)} & 96.34 \textbf{\scriptsize (4.42)} & 80.05 \textbf{\scriptsize (12.20)} & 95.31 \textbf{\scriptsize (12.69)} & 90.93\\
+        \textbf{\small {\framework}-SGFormer(Our)} & \textbf{66.99} \textbf{\scriptsize (3.08)} & \textbf{67.27}  \textbf{\scriptsize (2.99)}& \textbf{76.06}  \textbf{\scriptsize (3.95)}& \textbf{93.76}  \textbf{\scriptsize (6.88)} &  \textbf{76.02}\\
+
+         \midrule
+        {\small Polynormer} & 93.00 \textbf{\scriptsize (37.94)} & 96.31 \textbf{\scriptsize (27.61)} &  79.66 \textbf{\scriptsize (43.80)} & 94.81 \textbf{\scriptsize (30.84)} & 90.95\\
+        \textbf{\small {\framework}-Polynormer(Our)} & \textbf{87.41} \textbf{\scriptsize (4.83)} & \textbf{93.37} \textbf{\scriptsize (2.91)} & \textbf{75.53}  \textbf{\scriptsize (3.67)} & \textbf{95.93}  \textbf{\scriptsize (4.99)} & \textbf{88.06}\\
+
+        \midrule
+        {\small TunedGCN} & 93.64 \textbf{\scriptsize (17.64)} & 95.97 \textbf{\scriptsize (12.69)} & 80.43 \textbf{\scriptsize (8.29)} & 95.89 \textbf{\scriptsize (16.55)} & 91.48\\
+        \textbf{\small {\framework}-GCN(Our)} & \textbf{93.00} \textbf{\scriptsize (1.53)} & \textbf{96.23} \textbf{\scriptsize (1.65)} & \textbf{81.11}  \textbf{\scriptsize (1.50)} & \textbf{96.14}  \textbf{\scriptsize (5.45)} & \textbf{91.62}\\
+        \midrule
+        {\small TunedSAGE} & 93.14 \textbf{\scriptsize (7.77)} & 96.04 \textbf{\scriptsize (5.00)} & 80.01  \textbf{\scriptsize (4.27)} & 95.94 \textbf{\scriptsize (25.08)} & 91.28\\
+        \textbf{\small {\framework}-SAGE(Our)} & \textbf{91.07} \textbf{\scriptsize (1.62)} & \textbf{95.33} \textbf{\scriptsize (1.92)} & \textbf{79.67}  \textbf{\scriptsize (1.26)} & \textbf{96.46}  \textbf{\scriptsize (7.04)} & \textbf{90.63}\\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{\small Efficiency improvement of the iPaD framework over various SOTA models across four datasets.}
+For each dataset (Computers, Photo, WikiCS, CS), accuracy (\%) is reported alongside inference time (ms) in parentheses.}
+    \label{tab:full_comparison_medium}
+\end{table}
+\endgroup

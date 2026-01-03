@@ -1,0 +1,39 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.15} % 增加行高，表格更寬鬆
+
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{L{0.19\textwidth}|ccc|C{0.125\textwidth}}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed} & \textbf{\small Accuracy}\\
+        \midrule
+        {\footnotesize GCN w Zero} & 23.29 {\scriptsize ± 1.00} & 16.70 {\scriptsize ± 0.34} & 44.04 {\scriptsize ± 0.08} & 28.01\\
+        {\footnotesize GCN w FP} & 68.55 {\scriptsize ± 0.90} & 44.72 {\scriptsize ± 0.24} & 70.97 {\scriptsize ± 0.36} & 61.41 {\footnotesize \textbf{33.4}$\uparrow$}\\
+        {\footnotesize TunedGCN w FP} & \textbf{\textcolor{cyan}{70.84 {\scriptsize ± 1.06}}} & 46.80 {\scriptsize ± 0.70} & \textbf{\textcolor{red}{73.13 {\scriptsize ± 1.18}}} & \textbf{\textcolor{red}{63.59}} {\footnotesize \textbf{35.6}$\uparrow$}\\
+        {\footnotesize \textbf{MPP-TunedGCN w APCFI(our)}} & \textbf{\textcolor{red}{70.46 {\scriptsize ± 0.75}}} & 50.62 {\scriptsize ± 0.57}& 71.77 {\scriptsize ± 0.53}& \textbf{\textcolor{cyan}{64.28}} {\footnotesize \textbf{36.3}$\uparrow$} \\
+        {\footnotesize \textbf{{\framework}-GCN(our)}} & 60.94 {\scriptsize ± 2.51} & \textbf{\textcolor{green1}{52.22 {\scriptsize ± 0.53}}} & 72.35 {\scriptsize ± 0.35} & 61.84 {\footnotesize \textbf{33.8}$\uparrow$}\\
+        \midrule
+        {\footnotesize GraphSAGE w Zero} & 34.14 {\scriptsize ± 0.16} & 23.98 {\scriptsize ± 0.74} & 41.28 {\scriptsize ± 0.36} & 32.53\\
+        {\footnotesize GraphSAGE w FP} & \textbf{\textcolor{green1}{71.24 {\scriptsize ± 0.89}}} & \textbf{\textcolor{red}{50.77 {\scriptsize ± 0.75}}} & \textbf{\textcolor{green1}{74.97 {\scriptsize ± 0.48}}} & \textbf{\textcolor{green1}{65.66}} {\footnotesize \textbf{32.5}$\uparrow$} \\
+        {\footnotesize \textbf{TunedSAGE w FP}} & 51.72 {\scriptsize ± 5.41} & 48.39 {\scriptsize ± 1.41} & \textbf{\textcolor{cyan}{74.52 {\scriptsize ± 0.97}}} & 58.21 {\footnotesize \textbf{25.1}$\uparrow$} \\
+        {\footnotesize \textbf{MPP-TunedSAGE w APCFI(our)}} & 65.96 {\scriptsize ± 0.95} & 50.57 {\scriptsize ± 2.00} & 69.50 {\scriptsize ± 3.91} & 62.01 {\footnotesize \textbf{28.9}$\uparrow$}\\
+        {\footnotesize \textbf{{\framework}-SAGE(our)}} & 59.56 {\scriptsize ± 4.11} & \textbf{\textcolor{cyan}{52.08 {\scriptsize ± 1.60}}} & 64.31 {\scriptsize ± 4.63} & 58.65 {\footnotesize \textbf{25.5}$\uparrow$}\\
+        \bottomrule
+    \end{tabular}
+    \label{tab:table}
+    \caption{\textbf{Comparison under 99.5\% structural feature missing: vanilla GNN, MPP-Tuned, and {\framework} with common imputation methods on classic datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.}
+    \label{tab:structural_mr_toy}
+\end{table}
+\endgroup

@@ -1,0 +1,43 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{3}{white}{mygray}
+
+
+\renewcommand{\arraystretch}{1.1} % 增加行高，表格更寬鬆
+
+
+
+\begin{table}[H]
+     \centering
+    \begin{tabular}{L{0.265\textwidth}|L{0.15\textwidth}L{0.15\textwidth}L{0.15\textwidth}L{0.15\textwidth}|C{0.11\textwidth}}
+\textbf{} & \textbf{\small Computers} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS}\\
+  \textbf{\small Model} & \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Train(epcoh/s))} &  \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Train(epcoh/s))}& \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Train(epcoh/s))} &   \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Train(epcoh/s))} & \textbf{\small Average} \textbf{\footnotesize Accuracy}\\
+
+         \midrule
+         {\small SGFormer} & 92.00 \textbf{\scriptsize (58.05)} & 96.34 \textbf{\scriptsize (75.48)} & 80.05 \textbf{\scriptsize (27.22)} & 95.31 \textbf{\scriptsize (25.57)} & 90.93\\
+        \textbf{\small MPP-SGFormer(Our)} & \textbf{91.87} \textbf{\scriptsize (73.00)} & \textbf{95.46}  \textbf{\scriptsize (81.12)}& \textbf{78.81}  \textbf{\scriptsize (45.99)}& \textbf{95.15}  \textbf{\scriptsize (39.81)} &  \textbf{90.32}\\
+
+         \midrule
+        {\small Polynormer} & 93.00 \textbf{\scriptsize (6.90)} & 96.31 \textbf{\scriptsize (9.54)} &  79.66 \textbf{\scriptsize (6.19)} & 94.81 \textbf{\scriptsize (8.72)} & 90.95\\
+        \textbf{\small MPP-Polynormer(Our)} & \textbf{93.22} \textbf{\scriptsize (15.94)} & \textbf{96.33} \textbf{\scriptsize (19.10)} & \textbf{79.79}  \textbf{\scriptsize (14.58)} & \textbf{93.08}  \textbf{\scriptsize (19.34)} & \textbf{90.61}\\
+
+        \midrule
+        {\small TunedGCN} & 93.64 \textbf{\scriptsize (19.35)} & 95.97 \textbf{\scriptsize (28.84)} & 80.43 \textbf{\scriptsize (41.64)} & 95.89 \textbf{\scriptsize (23.32)} & 91.48\\
+        \textbf{\small MPP-TunedGCN(Our)} & \textbf{93.62} \textbf{\scriptsize (54.49)} & \textbf{95.92} \textbf{\scriptsize (47.20)} & \textbf{80.68}  \textbf{\scriptsize (69.58)} & \textbf{96.01}  \textbf{\scriptsize (47.73)} & \textbf{91.56}\\
+        \midrule
+        {\small TunedSAGE} & 93.14 \textbf{\scriptsize (55.97)} & 96.04 \textbf{\scriptsize (73.37)} & 80.01  \textbf{\scriptsize (89.41)} & 95.94 \textbf{\scriptsize (15.71)} & 91.28\\
+        \textbf{\small MPP-TunedSAGE(Our)} & \textbf{92.87} \textbf{\scriptsize (90.49)} & \textbf{95.83} \textbf{\scriptsize (90.49)} & \textbf{80.27}  \textbf{\scriptsize (113.37)} & \textbf{95.87}  \textbf{\scriptsize (21.29)} & \textbf{91.21}\\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{\small Training efficiency improvement of MPP pruning over various SOTA models.}
+For each dataset (Computers, Photo, WikiCS, CS), accuracy (\%) is reported alongside training speed (epoch/s) in parentheses. }
+    \label{tab:pruning_comparison_medium}
+\end{table}
+\endgroup

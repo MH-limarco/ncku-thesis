@@ -1,0 +1,89 @@
+\definecolor{green1}{RGB}{40,180,90}
+\newcommand{\algstep}[1]{\Statex\State{\textcolor{green1}{\textbf{#1}}}}
+
+\begin{algorithm}[htbp]
+    \caption{PyTorch-style Pseudo-code of APCFI}
+    \label{algo:apcfi}
+    \begin{algorithmic}[1]
+        \Function{apcfi\_fill}{feature, edge\_index}
+            \State mask = \texttt{~feature.isnan()} % 建議把 ~ 放 code block
+            \algstep{Step 1: ASDE and Dynamic Joint Channel Diffusion}
+            \State diffusion\_x, asde\_matrix = diffusion(feature, edge\_index, mask)
+            \algstep{Step 2: Node-wise Inter-Channel Propagation}
+            \State output = node\_propagation(diffusion\_x, asde\_matrix)
+            \algstep{Return the imputed feature matrix}
+            \State \Return output
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+    \caption{PyTorch-style Pseudo-code of Function \texttt{diffusion}}
+    \label{algo:apcfi-diffusion}
+    \begin{algorithmic}[1]
+        \Function{diffusion}{feature, edge\_index, mask}
+            \algstep{Step 1: Calculate ASDE matrix}
+            \State asde\_matrix = ASDE(edge\_index, mask)
+
+            \algstep{Step 2: Compute pseudo-confidence}
+            \State confidence\_matrix = pseudo\_confidence(edge\_index, asde\_matrix)
+            \State soft\_confidence\_matrix = F.softmax(confidence\_matrix, dim=1)
+
+            \algstep{Step 3: Normalize by row transition}
+            \State normalize\_confidence = row\_transition(soft\_confidence\_matrix, edge\_index[0])
+
+            \algstep{Step 4: Perform channel-wise diffusion}
+            \State diffusion\_x = approximate\_channel\_diffusion(feature, normalize\_confidence,
+            \Statex \hspace{8.4cm} edge\_index, mask)
+
+            \algstep{Return: Channel-Diffusion(imputed) feature matrix}
+            \State \Return diffusion\_x, asde\_matrix
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+    \caption{PyTorch-style Pseudo-code of Function \texttt{row\_transition}}
+    \label{algo:apcfi-row_transition}
+    \begin{algorithmic}[1]
+        \Function{row\_transition}{soft\_confidence\_matrix, edge\_index[0]}
+            \algstep{Step 1: row-wise sum}
+            \State deg\_w = torch\_scatter.scatter\_add(confidence\_matrix, row\_index, dim=0)
+            \algstep{Step 2: Inverse degree normalization}
+            \State deg\_w\_inv = deg\_w.pow(-1.0)
+            \algstep{Step 3: Fill diagonal with zeros}
+            \State deg\_w\_inv.masked\_fill_(deg\_w\_inv == float(inf), 0)
+            \algstep{Step 4: Normalize confidence matrix}
+            \State norm\_confidence\_matrix = confidence\_matrix * deg\_w\_inv[row\_index]
+            \algstep{Return: Normalized confidence matrix}
+            \State \Return norm\_confidence\_matrix
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[htbp]
+    \caption{PyTorch-style Pseudo-code of Function \texttt{node\_propagation}}
+    \label{algo:apcfi-node_propagation}
+    \begin{algorithmic}[1]
+        \Function{node\_propagation}{diffusion\_x, asde\_matrix}
+
+            \algstep{Step 1: Compute inter-channel correlation (conf)}
+            \State conf = torch.corrcoef(diffusion\_x.T).nan\_to\_num().fill\_diagonal\_(0)
+
+            \algstep{Step 2: Compute channel mean difference}
+            \State alpha\_mean = (alpha ** asde\_matrix) * (diffusion\_x - torch.mean(diffusion\_x, dim=0))
+
+            \algstep{Step 3: Aggregate with channel correlation}
+            \State alpha\_mean\_conf = torch.matmul(alpha\_mean, conf)
+
+            \algstep{Step 4: Update node features}
+            \State update\_x = beta * (1 - (alpha ** asde\_matrix)) * alpha\_mean\_conf
+            \State updated\_x = diffusion\_x + update\_x
+
+            \algstep{Return: Node-updated feature matrix}
+            \State \Return updated\_x
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\endgroup

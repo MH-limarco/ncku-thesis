@@ -1,0 +1,31 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{white}{mygray}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+ \centering
+\begin{tabular}{L{0.15\textwidth} |cccccc| C{0.125\textwidth}}
+\toprule
+\textbf{\small Method} & \textbf{\small Cora}& \textbf{\small CiteSeer}&\textbf{\small Pubmed}&\textbf{\small Computer} & \textbf{\small Photo} & \textbf{\small WikiCS}&  \textbf{\small Average$\uparrow$} \\
+\midrule
+
+FP & 78.44 & 59.36 & 79.08 & 92.33 & 93.41 & 78.15 & 80.13\\
+trainable FP & 11.72 & 20.72 & 42.80 & 39.03 & 37.23 & 22.38 & 28.98\\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{\small Performance comparison of FP and trainable FP under high missing rates.}
+Node classification accuracy (\%) on six datasets (Cora, CiteSeer, Pubmed, Computer, Photo, WikiCS) with a uniform feature missing rate of 90\%. }
+\label{tab:learning_FP}
+\end{table}
+\endgroup

@@ -1,0 +1,131 @@
+\section{APCFI: Approximate Pseudo-Confidence Feature Imputation}
+\label{sec:method_apcfi}
+
+As the first stage of the {\framework} pipeline, we address the foundational challenge of data incompleteness. GNNs are often severely challenged by missing node features, which can undermine representation learning and overall model performance. To address this, we propose \textbf{APCFI}, a robust, scalable, and modular feature completion strategy that significantly advances over classical methods. Figure~\ref{fig:apcfi_framework} illustrates the overall workflow of the APCFI module.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{./context/fig/apcfi.png}
+    \caption{\textbf{The overall workflow of the APCFI module.} It takes a graph with an incomplete feature matrix as input and leverages ASDE and Dynamic Joint Channel Diffusion to output a robustly recovered feature matrix for downstream tasks.}
+    \label{fig:apcfi_framework}
+\end{figure}
+
+\subsection{Motivation and Core Idea}
+\label{ssec:apcfi_motivation}
+Traditional imputation methods present a difficult trade-off. Simple approaches like Feature Propagation (FP)~\cite{FP} are efficient but lack the capacity to account for channel-wise heterogeneity. Conversely, advanced methods like Pseudo-Confidence Feature Imputation (PCFI)~\cite{PCFI} introduce channel-wise confidence to achieve high accuracy, but at the cost of prohibitive computational complexity due to their sequential, channel-by-channel calculations.
+
+To overcome this critical performance-efficiency gap, \textbf{APCFI} is designed to retain the high-quality, confidence-aware imputation of PCFI while fundamentally re-engineering its computationally expensive components. This is achieved through two key innovations:
+\begin{enumerate}
+    \item \textbf{Approximate Shortest Distance Estimation (ASDE):} \\ This module directly \textbf{replaces PCFI's exhaustive, channel-wise k-hop traversal} for calculating shortest-path distances. By using a highly parallelizable message-passing approximation, ASDE efficiently estimates the required distances with significantly less overhead.
+    \item \textbf{Dynamic Joint Channel Diffusion:} \\ This mechanism \textbf{replaces PCFI's slow, sequential diffusion process}. Instead of iterating through each feature channel one by one (a process with $O(d \times k)$ complexity), our joint diffusion handles all channels in parallel (achieving $O(k)$ complexity), leading to a dramatic reduction in computation time.
+\end{enumerate}
+
+\subsection{Technical Workflow}
+\label{ssec:apcfi_workflow}
+The APCFI workflow consists of three main steps to transform an incomplete feature matrix $\mathbf{X}$ into a recovered matrix $\hat{\mathbf{X}}$.
+
+\subsubsection{Step 1: Approximate Shortest Distance Estimation (ASDE)}
+First, we estimate the pseudo-confidence of each node's features. Let $S_d$ be the set of source nodes with observed values for the $d$-th feature channel. The shortest distance vector, $\mathbf{s}^{(d)}$, is initialized and iteratively updated using neighborhood information, as illustrated in Figure~\ref{fig:asde_process}. The channel-wise pseudo-confidence for node $v_i$ and channel $d$ is then defined as an exponential decay function of its shortest-path distance $\text{SPD}_{i,S_d}$:
+\begin{equation}
+    c_i^{(d)} = \alpha^{\text{SPD}_{i,S_d}}
+    \label{eq:pseudo_confidence}
+\end{equation}
+where $\alpha \in (0,1)$ is a decay factor controlling reliability attenuation with distance.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{./context/fig/asde.png}
+    \caption{\textbf{Illustration of the Approximate Shortest Distance Estimation (ASDE) process.} Starting with observed features (step-0), the algorithm iteratively propagates distance information through the graph. Each cell in the ASDE matrix represents the shortest hop-distance to an observed feature in that channel.}
+    \label{fig:asde_process}
+\end{figure}
+
+\subsubsection{Step 2: Soft-Pseudo Confidence Generation and Joint Diffusion}
+The core feature imputation is driven by adaptive, confidence-based weights. To generate these, we first introduce the concept of \textbf{Soft-Pseudo Confidence}. Unlike the raw pseudo-confidence score $c_i^{(d)}$ from Equation~\ref{eq:pseudo_confidence}, which reflects absolute, local confidence, Soft-Pseudo Confidence captures the \textit{relative} reliability of a node compared to all other nodes for a specific feature channel. We compute this by applying a softmax normalization along the node dimension for each channel's pseudo-confidence vector:
+\begin{equation}
+    w_{i,d} = \frac{\exp(c_i^{(d)})}{\sum_{j=1}^{N} \exp(c_j^{(d)})}
+    \label{eq:soft_pc}
+\end{equation}
+
+To illustrate the effectiveness of this mechanism, consider the following example. Given a raw pseudo-confidence matrix $\mathbf{PC}$:
+\[
+\mathbf{PC} =
+\begin{bmatrix}
+0.5 & 0.5 \\
+1.0 & 0.7 \\
+0.25 & 1.0
+\end{bmatrix}
+\]
+The resulting soft-pseudo confidence weights $\mathbf{soft\_PC}$ are:
+\[
+\mathbf{soft\_PC} =
+\begin{bmatrix}
+0.292 & 0.258 \\
+0.481 & 0.316 \\
+0.227 & 0.426
+\end{bmatrix}
+\]
+
+\subsection{Validating the APCFI Design: A Component-wise Ablation Study}
+\label{ssec:ablation_apcfi}
+
+To justify the specific design of our APCFI module, we conduct a detailed component-wise ablation study. This analysis aims to isolate the individual contributions of our three key innovations—\textbf{ASDE}, \textbf{DJCD (Dynamic Joint Channel Diffusion)}, and \textbf{Soft-PC}—in terms of both computational efficiency and final imputation accuracy.
+
+\subsubsection{Analysis of Efficiency Contributions}
+Table~\ref{tab:ablation_apcfi_runtime} presents a runtime breakdown of the APCFI components, demonstrating how each innovation contributes to the overall efficiency breakthrough.
+
+The baseline configuration (row 1), which mimics the slow, sequential nature of PCFI, suffers from extremely high runtimes. The results clearly show that:
+\begin{itemize}
+    \item Enabling our proposed \textbf{ASDE} module (row 2) reduces the SPD runtime catastrophically, for instance, from 148.89s down to a mere 0.021s on the CiteSeer dataset. This validates ASDE as the key to solving the confidence calculation bottleneck.
+    \item Subsequently, enabling \textbf{DJCD} (row 3) provides a similar dramatic speedup for the diffusion step, reducing its runtime from 101.7s to just 0.057s. This confirms that our joint channel diffusion is the key to efficient feature propagation.
+\end{itemize}
+
+% 您的新表格
+\begin{table}[htbp]
+    \centering
+    \caption{Ablation study of APCFI components on runtime performance. The table reports the runtime (in seconds) for the two main stages of imputation (SPD calculation and Diffusion). Each row corresponds to enabling a key innovation, demonstrating how each component contributes to the final efficiency.}
+    \label{tab:ablation_apcfi_runtime}
+    \input{./context/5-experiment/20-ablation_apcfi_runtime}
+\end{table}
+
+\subsubsection{Analysis of Accuracy Contribution}
+Having established the efficiency gains from ASDE and DJCD, we now investigate the role of the final component, \textbf{Soft-PC}. Notably, Table~\ref{tab:ablation_apcfi_runtime} (comparing rows 3 and 4) shows that adding Soft-PC introduces \textbf{negligible computational overhead}. Its contribution lies in enhancing accuracy.
+
+As shown in Table~\ref{tab:ablation_apcfi_acc}, while the effect is modest, the full APCFI model with Soft-PC achieves a higher average accuracy than the variant without it (78.40\% vs. 78.23\%). This confirms that the adaptive, context-aware weighting provided by Soft-PC is a valuable component for improving the final imputation quality.
+
+% 您原有的準確率表格
+\input{./context/5-experiment/19-ablation_apcfi}
+% 請記得為此表格加上 \begin{table}...\caption{...}\label{tab:ablation_apcfi_acc}...\end{table} 環境
+
+\subsubsection{Conclusion}
+In conclusion, this component-wise analysis validates our design. \textbf{ASDE} and \textbf{DJCD} are responsible for the massive efficiency breakthroughs that make APCFI practical for large-scale graphs, while \textbf{Soft-PC} provides a final layer of performance refinement at virtually no additional cost. This justifies the inclusion of all three innovations in our final APCFI model.
+in parallel at each iteration $t$. To prevent feature oversmoothing, the values of observed entries are strictly reset to their original values after each diffusion step, as illustrated in Figure~\ref{fig:diffusion_process}. The update rule is as follows:
+\begin{equation}
+    \hat{x}_{i,d}^{(t+1)} =
+    \begin{cases}
+    x_{i,d}, & \text{if } (i,d) \text{ is observed}\\
+    \frac{\sum_{j\in N(i)} w_{j,d} \cdot \hat{x}_{j,d}^{(t)}}{\sum_{j\in N(i)} w_{j,d}}, & \text{otherwise}
+    \end{cases}
+    \label{eq:diffusion_update}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./context/fig/djcd.png}
+    \caption{\textbf{The iterative process of Dynamic Joint Channel Diffusion.} In each of the K steps, a diffusion operation updates the missing values based on neighbors, followed by a "Fixed" step where the original, observed feature values are reset to prevent oversmoothing and preserve data fidelity.}
+    \label{fig:diffusion_process}
+\end{figure}
+
+\subsubsection{Step 3: Node-wise Inter-Channel Propagation}
+As a final refinement, this step leverages latent correlations between different feature channels \textit{within} the same node. It applies a confidence-weighted, correlation-informed linear transformation to each node's feature vector, allowing information to be exchanged between channels for a more consistent imputation.
+$$
+\tilde{\mathbf{x}}_i^\top = \hat{\mathbf{x}}_i^\top + \mathbf{B}(i)(\hat{\mathbf{x}}_i - \mathbf{m})^\top
+$$
+where $\mathbf{B}(i)$ is a transformation matrix derived from inter-channel Pearson correlations and feature confidences.
+
+\subsection{Implementation and Pseudocode}
+\label{ssec:apcfi_pseudo}
+The complete APCFI workflow is implemented as shown in Algorithms~\ref{algo:apcfi},~\ref{algo:apcfi-diffusion},~\ref{algo:apcfi-row_transition}, and~\ref{algo:apcfi-node_propagation}, which detail the main function and its core diffusion and node-propagation subroutines, respectively.
+
+\input{./context/4-methodology/_apcfi_pseudocode}
+
+In summary, APCFI provides a robust and scalable solution for data imputation. The recovered feature matrix, $\hat{\mathbf{X}}$, provides a high-quality data foundation for training our robust GNN backbone, which we introduce next.

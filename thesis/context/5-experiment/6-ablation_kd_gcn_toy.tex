@@ -1,0 +1,43 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{4}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+\begin{table}[htbp]
+ \centering
+\begin{tabular}{L{0.07\textwidth}L{0.07\textwidth}L{0.07\textwidth}|C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}|C{0.12\textwidth}}
+
+ \multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+ \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed}\\
+\cline{4-7} \textbf{\small KRD}& \textbf{\small MP-MLP} & \textbf{\small CWDLoss} &
+ \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} & \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))}& \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} & \textbf{\small Average} \textbf{\footnotesize Accuracy}\\
+
+\midrule
+  {\footnotesize -} & {\footnotesize -} & {\footnotesize -} & 83.76 \textbf{\scriptsize (2.61)} & 72.45 \textbf{\scriptsize (2.26)} & 80.43 \textbf{\scriptsize (2.30)}   & 78.88\\
+
+ \midrule
+ \textcolor{red}{\XSolidBrush} & \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 79.22 \textbf{\scriptsize (1.49)}	& 70.13	\textbf{\scriptsize (1.63)}& 78.78 \textbf{\scriptsize (1.46)}& 76.04\\
+
+\textcolor{green1}{\CheckmarkBold}& \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  &  84.65 \textbf{\scriptsize (1.49)}& 74.17	\textbf{\scriptsize (1.63)}&\textbf{\textcolor{green1}{83.02 \textbf{\scriptsize (1.46)}}} & 80.61 {\textbf{\footnotesize 4.57$\uparrow$}}\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{red}{\XSolidBrush}   & \textbf{\textcolor{red}{84.93 \textbf{\scriptsize (1.29)}}}& \textbf{\textcolor{red}{75.18 \textbf{\scriptsize (1.37)}}}&	\textbf{\textcolor{red}{82.67 \textbf{\scriptsize (1.32)}}} & \textbf{\textcolor{green1}{80.93}} {\textbf{\footnotesize 4.89$\uparrow$ }}\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{green1}{\CheckmarkBold}& \textbf{\textcolor{green1}{85.02 \textbf{\scriptsize (1.29)}}}&	\textbf{\textcolor{green1}{75.37 \textbf{\scriptsize (1.37)}}}&	82.09 \textbf{\scriptsize (1.32)}& \textbf{\textcolor{red}{80.83}} {\textbf{\footnotesize 4.79$\uparrow$}}\\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Ablation study of KRD, MP-MLP, and CWD-loss components in the MP-KRD module on classic datasets using the GCN model.} The table reports test accuracy on Cora, CiteSeer, and PubMed for different component combinations. Avg Accuracy indicates the average accuracy and relative improvement. The best, and second-best results are highlighted in \textbf{\textcolor{green1}{green}}, and \textbf{\textcolor{red}{red}}}
+\label{tab:ablation_kd_gcn_toy}
+\end{table}
+\endgroup

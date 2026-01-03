@@ -1,0 +1,178 @@
+\section{APCFI: Approximate Pseudo-Confidence Feature Imputation}
+\label{sec:method_apcfi}
+
+As the first stage of the {\framework} pipeline, the foundational challenge of data incompleteness is addressed.
+To this end, \textbf{APCFI} is proposed as a robust and scalable feature completion strategy, advancing beyond prior art by introducing a more sophisticated, two-stage normalization process to enhance imputation quality.
+Figure~\ref{fig:apcfi_framework} illustrates the overall workflow of the APCFI module.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{./context/fig/apcfi.png}
+    \caption{\textbf{The overall workflow of the APCFI module.} It takes a graph with an incomplete feature matrix as input and leverages ASDE and Dynamic Joint Channel Diffusion (DJCD) to output a robustly recovered feature matrix for downstream tasks.}
+    \label{fig:apcfi_framework}
+\end{figure}
+
+\subsection{Motivation and Core Idea}
+\label{ssec:apcfi_motivation}
+
+Previous high-performance imputation methods like PCFI~\cite{PCFI} successfully utilize channel-wise confidence to guide feature diffusion. However, this approach faces two key limitations: the calculation of exact shortest paths is computationally expensive, and the raw confidence scores may not optimally reflect the relative importance of nodes.
+
+APCFI is designed to overcome both limitations. Its core philosophy is to improve both the efficiency of confidence calculation and the quality of the diffusion weights. This is achieved through three key innovations:
+\begin{enumerate}
+    \item \textbf{Approximate Shortest Distance Estimation (ASDE):} Replaces PCFI's costly k-hop traversal with a highly parallelizable message-passing scheme to efficiently approximate shortest-path distances.
+    \item \textbf{Soft-Pseudo Confidence (Soft-PC):} Introduces a ``softmax'' layer before the standard row-stochastic normalization to transform raw confidence scores into context-aware, relative reliability weights.
+    \item \textbf{Dynamic Joint Channel Diffusion:} Replaces PCFI's sequential diffusion with a parallel process, reducing complexity from $O(d \times k)$ to $O(k)$.
+\end{enumerate}
+
+\subsection{Technical Workflow}
+\label{ssec:apcfi_workflow}
+The APCFI workflow consists of three main steps to transform an incomplete feature matrix $\mathbf{X}$ into a recovered matrix $\hat{\mathbf{X}}$.
+
+\subsubsection{Step 1: Approximate Shortest Distance Estimation (ASDE)}
+
+To efficiently quantify the reliability of feature imputation, the raw pseudo-confidence (PC) is computed for each node-feature pair based on the shortest-path distance (SPD) from a missing-feature node to its nearest observed-feature node in the same channel. The ASDE algorithm, illustrated in Figure~\ref{fig:asde_process}, iteratively propagates distance information through the graph, enabling rapid approximation of these SPD values.
+
+Formally, the shortest-path distance for node $v_i$ and feature channel $d$ is defined as:
+\begin{equation}
+\text{SPD}_{i,S_d} =
+\begin{cases}
+1, & \text{if } x_{i,d} \text{ is observed} \\
+\min \left\{ t \mid \hat{x}_{i,d}^{(t)} \neq 0 \right\}, & \text{if } x_{i,d} \text{ is missing}
+\end{cases}
+\end{equation}
+
+The raw pseudo-confidence is then given by:
+\begin{equation}
+    pc_i^{(d)} = \alpha^{\text{SPD}_{i,S_d}}
+    \label{eq:pseudo_confidence}
+\end{equation}
+
+where $\alpha \in (0,1)$ is a decay factor that controls the influence of distance on confidence.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{./context/fig/asde.png}
+    \caption{\textbf{Illustration of the Approximate Shortest Distance Estimation (ASDE) process.} The algorithm begins with observed features (step-0) and propagates shortest-path information through the graph. Each entry in the ASDE matrix reflects the shortest hop-distance to an observed feature within the same channel.}
+    \label{fig:asde_process}
+\end{figure}
+
+
+\newpage
+\subsubsection{Step 2: Two-Stage Normalization}
+This step is the core of our imputation mechanism, involving a two-stage normalization process to generate the final diffusion weights.
+
+
+\subsubsubsection{\textbf{Stage 1: Soft-Pseudo Confidence}}
+\\ The raw pseudo-confidence scores $pc_i^{(d)}$ are first passed through a ``softmax'' operation to produce the ``soft confidence matrix''. The goal is to generate context-aware, relative reliability scores, which is a key innovation over PCFI. The resulting weights $w_{i,d}$ are calculated as:
+\begin{equation}
+    w_{i,d} = \frac{\exp(pc_i^{(d)})}{\sum_{j=1}^{N} \exp(pc_j^{(d)})}
+    \label{eq:soft_pc}
+\end{equation}
+
+To illustrate the effectiveness of this mechanism, consider the following example. Given a raw pseudo-confidence matrix $\mathbf{PC}$:
+\[
+\mathbf{PC} =
+\begin{bmatrix}
+0.5 & 0.5 \\
+1.0 & 0.7 \\
+0.25 & 1.0
+\end{bmatrix}
+\]
+The resulting soft-pseudo confidence weights $\mathbf{soft\_PC}$ are:
+\[
+\mathbf{soft\_PC} =
+\begin{bmatrix}
+0.292 & 0.258 \\
+0.481 & 0.316 \\
+0.227 & 0.426
+\end{bmatrix}
+\]
+Notably, even though the first node has the same pseudo-confidence value ($0.5$) for both feature channels, its final soft-pseudo confidence weights differ ($0.292$ vs. $0.258$). This is because softmax normalization takes into account the entire pseudo-confidence distribution for each channel, allowing identical values to have different relative importance depending on their context. This makes the weighting process more flexible and robust for the subsequent diffusion step.
+
+\subsubsubsection{\textbf{Stage 2: Row-Stochastic Transition}}
+\\ To ensure a stable and mathematically sound diffusion process, the ``soft confidence matrix'' (denoted as $\mathbf{W}'$) undergoes a final row-stochastic normalization. This step is crucial for preserving the feature scale during propagation~\cite{PCFI}. It is achieved by normalizing each weight by its corresponding row sum:
+\begin{equation}
+    \mathbf{W} = \mathbf{D}^{-1}\mathbf{W}'
+\end{equation}
+where $\mathbf{D}$ is the diagonal degree matrix with $D_{ij} = \sum_{j} W'_{ij}$. The resulting matrix $\mathbf{W}$ is row-stochastic, meaning each row sums to 1.
+
+\subsubsection{Step 3: Dynamic Joint Channel Diffusion (DJCD)}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./context/fig/djcd.png}
+    \caption{\textbf{The iterative process of Dynamic Joint Channel Diffusion.} In each of the K steps, a diffusion operation updates the missing values based on neighbors, followed by a ``Fixed'' step where the original, observed feature values are reset to prevent oversmoothing and preserve data fidelity.}
+    \label{fig:diffusion_process}
+\end{figure}
+
+In this step, joint diffusion is performed based on the normalized weights, enabling efficient feature propagation across multiple channels.
+
+After obtaining the normalized, row-stochastic weight matrix $\mathbf{W}$, the final step involves performing the actual feature diffusion. This iterative process, conducted for a total of $K$ steps, propagates information from observed nodes to missing nodes across the graph.
+
+The update rule for each node $v_i$ and feature channel $d$ at iteration $t+1$ is defined as:
+\begin{equation}
+    \hat{x}_{i,d}^{(t+1)} =
+    \begin{cases}
+    x_{i,d}, & \text{if } (i,d) \text{ is observed}\\
+    \frac{\sum_{j\in \mathcal{N}(i)} \bar{w}_{ij} \cdot \hat{x}_{j,d}^{(t)}}{\sum_{j\in \mathcal{N}(i)} \bar{w}_{ij}}, & \text{otherwise}
+    \end{cases}
+    \label{eq:diffusion_update_final}
+\end{equation}
+
+
+For any feature that is already \textbf{observed}, its value is kept fixed.
+This is a crucial step to prevent the loss of ground-truth information and mitigate the ``over-smoothing'' problem, a technique also validated in the Feature Propagation (FP)~\cite{FP} paper.
+
+
+For any \textbf{missing} feature, its value is updated by computing a \textbf{weighted average} of the features of its neighboring nodes from the previous iteration.
+The weights $\bar{w}_{ij}$ are precisely the ones we derived from our two-stage normalization process, ensuring that more reliable neighbors contribute more significantly to the imputation.
+
+
+Notably, due to this design, the diffusion process can be conducted jointly and in parallel across all feature channels, which constitutes a key efficiency advantage of APCFI over PCFI.
+The entire iterative process is illustrated in Figure~\ref{fig:diffusion_process}.
+
+\subsubsection{Step 4: Node-wise Inter-Channel Propagation}
+As a final refinement, following the primary feature diffusion in the DJCD step, a node-wise inter-channel propagation mechanism is introduced. This step is designed to leverage latent correlations between different feature channels, further fine-tuning the imputed values for each node. The core design is guided by the \textbf{Humility Principle}: nodes with lower confidence in a certain feature value should be more receptive to "suggestions" from other highly correlated features.
+
+The process consists of the following computational steps. Let $\mathbf{\hat{X}}_{\text{djcd}}$ denote the feature matrix recovered from the DJCD step, and let $\mathbf{PC} \in \mathbb{R}^{N \times F}$ be the matrix of pseudo-confidence scores, where each entry $pc_{i,d}$ represents the confidence in the $d$-th feature of node $v_i$.
+
+\begin{enumerate}
+    \item \textbf{Inter-Channel Correlation:} The feature correlation matrix $\mathbf{C} \in \mathbb{R}^{F \times F}$ is computed to capture the global linear relationships between all feature channels across the graph:
+    $$
+    \mathbf{C} = \text{Corrcoef}(\mathbf{\widetilde{X}}_{\text{djcd}}^T)
+    $$
+
+    \item \textbf{Confidence-Weighted Signal:} For each node, an initial "suggestion" signal is generated by taking the deviation of each feature from its global mean, weighted by its pseudo-confidence score.
+    This ensures that more reliable features contribute more strongly to the suggestion signal. Let $\mathbf{\widetilde{\overline{X}}}_{\text{djcd}}$ be the feature mean vector:
+    $$
+    \mathbf{M}_{\alpha} = \mathbf{PC} \odot (\mathbf{\widetilde{X}}_{\text{djcd}} - \mathbf{\widetilde{\overline{X}}}_{\text{djcd}})
+    $$
+    where $\odot$ denotes element-wise multiplication.
+
+    \item \textbf{Suggestion Aggregation:} The signal $\mathbf{M}_{\alpha}$ is propagated through the correlation matrix $\mathbf{C}$, aggregating weighted suggestions from all other channels and enabling features to "advise" each other based on global correlation:
+    $$
+    \mathbf{M}_{\text{conf}} = \mathbf{M}_{\alpha} \cdot \mathbf{C}
+    $$
+
+    \item \textbf{Humility-based Update:} The update term $\Delta\mathbf{X}$ is computed by weighting the aggregated suggestions $\mathbf{M}_{\text{conf}}$ with a "humility" factor $(1 - \mathbf{PC})$ and a hyperparameter $\beta$. The humility factor ensures that features with low initial confidence are updated more significantly:
+    $$
+    \Delta\mathbf{X} = \beta \cdot (1 - \mathbf{PC}) \odot \mathbf{M}_{\text{conf}}
+    $$
+    The final imputed feature matrix is obtained by applying this update to the result of the DJCD step:
+    $$
+    \mathbf{\hat{X}} = \mathbf{\widetilde{X}}_{\text{djcd}} + \Delta\mathbf{X}
+    $$
+\end{enumerate}
+
+This two-tiered process, combining broad graph-based diffusion with a fine-grained, correlation-aware adjustment, enables APCFI to produce a more robust and nuanced feature representation, providing a solid foundation for downstream GNN models.
+
+\subsection{Implementation and Pseudocode}
+\label{ssec:apcfi_pseudo}
+The complete APCFI workflow is detailed in the algorithms below (Algorithms~\ref{algo:apcfi} to~\ref{algo:apcfi-node_propagation}).
+
+In summary, by introducing a sophisticated two-stage normalization process and a highly efficient joint diffusion mechanism, APCFI provides a robust and scalable solution for data incomplete.
+The recovered feature matrix, $\hat{\mathbf{X}}$, serves as a high-quality data foundation for subsequent model training.
+Specifically, the enhanced completeness and reliability of $\hat{\mathbf{X}}$ enable the downstream GNN backbone to better exploit graph structure and node attributes, thereby improving overall learning stability and predictive performance, even in challenging real-world scenarios with severe missingness.
+The next section introduces the robust GNN backbone, which is designed to fully leverage this improved feature representation.
+
+\input{./context/4-methodology/_apcfi_pseudocode}

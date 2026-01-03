@@ -1,0 +1,60 @@
+% ------------------------------------------------
+\StartChapter{Discussion and Conclusion}{chapter:conclusion}
+% ------------------------------------------------
+
+\section{Summary of Findings and Contributions}
+\label{sec:conclusion_summary}
+This thesis addressed three interconnected challenges that hinder the practical deployment of Graph Neural Networks: incomplete data, high training costs, and inefficient inference.
+We argued that isolated solutions are insufficient and proposed that a \textbf{holistic, synergistic framework} is necessary to overcome these obstacles simultaneously.
+
+To this end, we presented \textbf{{\framework}}, a unified framework that seamlessly integrates the entire GNN pipeline.
+The journey begins with \textbf{APCFI}, which robustly and efficiently imputes missing features.
+It then proceeds to \textbf{MPP}, a novel proxy-pruning paradigm that creates a lightweight yet powerful \textbf{TunedGNN} teacher and a structurally-aligned MLP student before expensive training commences.
+Finally, \textbf{MP-KRD} completes the pipeline by efficiently distilling the teacher's knowledge into the student, producing a final model optimized for real-world deployment.
+
+Our extensive experiments have validated the effectiveness of this synergistic design, leading to several key findings:
+\begin{itemize}
+    \item \textbf{APCFI successfully resolves the accuracy-efficiency trade-off}, achieving imputation quality comparable to state-of-the-art methods like PCFI but with a more than 200x speedup in computation.
+    \item \textbf{MPP provides a clear ``efficiency sweet spot"}, capable of reducing training and inference costs by over 3x and 5x respectively, with negligible impact on model accuracy at moderate prune rates.
+    \item Most significantly, our framework exhibits nuanced robustness properties.
+    The distilled student model can \textbf{outperform its GNN teacher under severe edge missingness}, showcasing resilience to structural corruption.
+    Conversely, its performance is \textbf{capped by the teacher under feature missingness}, revealing a fundamental boundary condition of knowledge distillation for GNNs.
+\end{itemize}
+These contributions collectively demonstrate that a holistic design philosophy can lead to GNN systems that are at once robust, efficient, and high-performing.
+
+\section{Limitations}
+\label{sec:conclusion_limitations}
+Despite its demonstrated strengths, this work has several limitations that open avenues for future research:
+\begin{itemize}
+    \item \textbf{Applicability to Graph Types:} \\
+    The current designs of APCFI and MPP are primarily tailored for homogeneous graphs. Their effectiveness and generalization capability on highly heterogeneous graphs or graphs with diverse node and edge types have not yet been comprehensively validated.
+    \item \textbf{Model and Task Generalization:} \\
+    While {\framework} shows strong results on node classification, its applicability to other critical graph tasks, such as graph classification and link prediction, remains to be explored. Furthermore, its performance on industrial-scale graph datasets with billions of nodes and edges has not been tested.
+    \item \textbf{Automation and Hyperparameters:} \\
+    The framework, particularly the MP-KRD module, involves several hyperparameters that currently require manual tuning. A fully adaptive, automated mechanism for hyperparameter selection is still lacking.
+    \item \textbf{``TunedGNN'' Cost:} \\
+    Although MPP effectively mitigates its cost, the underlying \textbf{TunedGNN} architecture is inherently more computationally expensive than simpler GNNs, which presents a baseline overhead.
+\end{itemize}
+
+\section{Future Work}
+\label{sec:conclusion_future}
+The limitations of this study naturally point toward several exciting directions for future research:
+\begin{itemize}
+    \item \textbf{Unlocking Heterogeneous Graphs:} \\
+    A primary goal is to extend the principles of APCFI and MPP to be applicable to heterogeneous graphs, which are common in real-world industrial scenarios.
+    \item \textbf{Towards a Fully Automated Pipeline:} \\
+    Integrating AutoML techniques, especially for automated hyperparameter optimization (e.g., for the distillation loss weights $\lambda_1, \lambda_2$), would significantly lower the barrier to entry and enhance the framework's practical usability.
+    \item \textbf{Expanding to New Tasks and Scales:} \\
+    A crucial next step is to adapt and validate the {\framework} pipeline for other graph learning tasks, such as link prediction and graph classification, and to benchmark its performance on industrial-scale datasets.
+    \item \textbf{Deepening the Understanding of Distillation Robustness:} \\
+    Building upon our key finding regarding edge vs. feature missingness, a promising theoretical direction is to further investigate the boundary conditions of knowledge distillation for GNNs, formally characterizing when and why a distilled student can be more robust than its teacher.
+\end{itemize}
+
+\section{Concluding Remarks}
+In conclusion, this thesis presented {\framework}, a comprehensive solution to enhance the practicality of Graph Neural Networks.
+More than just a collection of algorithms, {\framework} embodies a design philosophy centered on synergy and end-to-end optimization.
+By demonstrating that it is possible to achieve robustness, training efficiency, and inference speed simultaneously without compromising performance,
+this work provides a valuable blueprint and a solid foundation for the next generation of GNN systems designed for the complexities of the real world.
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

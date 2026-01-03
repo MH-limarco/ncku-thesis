@@ -1,0 +1,36 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{l|cccc}
+        \toprule
+        \textbf{\small Dataset} & \textbf{\small Full edge} & \textbf{\small 30\% Missing} & \textbf{\small 60\% Missing} & \textbf{\small 90\% Missing} \\
+        \midrule
+        Cora& 83.77 &76.76 & 72.82 & 64.48  \\ % &72.98 &59.32  \\
+        CiteSeer& 72.33 &68.14 & 63.44 & 60.88  \\ % &64.29 &59.51
+        PubMed& 80.43 &76.58 & 75.36 & 72.82  \\ % &75.58 &70.57
+        Computers& 93.54 &92.24 & 91.12 & 87.36  \\ % &92.06 &87.47
+        Photo& 95.86 &95.25 & 94.35 & 91.56  \\ % &95.10 &93.18
+        WikiCS& 80.52 &78.61 & 77.27 & 73.50  \\ % &77.21 &72.79
+        CS& 95.89 &94.71 & 94.27 & 93.20  \\ % &77.21 &72.79
+        Physics & 97.36 & 96.58 & 96.45 & 95.92  \\ % &97.04 &96.35 &95.74
+        \midrule
+        \textbf{Average} & \textbf{\small 87.46}  & \textbf{\small 84.86} \textbf{\footnotesize 2.60 $\downarrow$} & \textbf{\small 83.14} \textbf{\footnotesize 4.32 $\downarrow$ }& \textbf{\small 79.97} \textbf{\footnotesize 7.49 $\downarrow$}\\
+        \bottomrule
+    \end{tabular}
+    \caption{\textbf{Test accuracy of TunedGCN~\cite{tunedGNN} on various datasets under different edge missing ratios.} The table reports accuracy under full edge, 30\%, 60\%, and 90\% edge missing conditions. Average accuracy and relative decreases are shown at the bottom.}
+    \label{tab:edge_mr_GCN}
+\end{table}
+\endgroup

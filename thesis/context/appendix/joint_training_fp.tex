@@ -1,0 +1,22 @@
+\StartChapter{Joint Training Imputer}{appendix:joint_training_imputer}
+
+\section{Joint Training of FP-based Imputer with MPP and KRD}
+\label{sec:joint_apcfi}
+
+The APCFI module in the proposed framework is currently applied as an independent preprocessing step, separate from the subsequent MPP pruning and MP-KRD distillation stages.
+A potential extension is to jointly train APCFI alongside these modules, enabling the feature imputation process to be directly optimized for the downstream node classification task. This could, in principle, yield more task-adaptive imputation results.
+
+However, experimental attempts at such joint training were unsuccessful, as shown in Table~\ref{tab:learning_FP}.
+The FP-based imputation methods employed in APCFI are inherently non-differentiable, which restricts gradient-based optimization of their internal parameters.
+To enable end-to-end training, an additional learnable neural network layer was appended after the imputed feature matrix.
+In practice, the absence of a well-defined loss function to guide this learnable module towards producing more informative feature representations led to performance degradation.
+Instead of enhancing the quality of the imputed features, the learnable layer often disrupted the inherent structural and statistical properties of the imputation output, thereby impairing the downstream model's training.
+
+\input{./context/appendix/fp_learnable}
+
+These findings suggest that the design of a differentiable, loss-guided imputation mechanism remains an open challenge.
+Developing such methods could be a promising direction for future work, potentially enabling effective end-to-end optimization of the APCFI module together with MPP and KRD.
+
+
+
+

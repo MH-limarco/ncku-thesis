@@ -1,0 +1,159 @@
+\section{MP-KRD: Mirror Projection Knowledge-inspired Reliable Distillation}
+\label{sec:method_mpkrd}
+
+The final stage of our {\framework} pipeline, \textbf{MP-KRD}, orchestrates the knowledge transfer from the powerful teacher model to the lightweight student model, both of which were prepared by the preceding MPP module.
+Specifically, it takes the trained ``Pruned TunedGNN'' as the Teacher and the ``Pruned MP-MLP'' as the Student. As depicted in Figure~\ref{fig:mpkrd_high_level}, the goal is to create a final inference model that is both highly efficient and robust.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{./context/fig/mp-rkd.png}
+    \caption{\textbf{The high-level view of the MP-KRD module.} It takes the trained GNN Teacher and the Pruned MP-MLP Student as input. A Reliable Label Sampler, guided by a curriculum, selects high-quality knowledge to distill, producing the final, efficient inference model.}
+    \label{fig:mpkrd_high_level}
+\end{figure}
+
+\newpage
+\subsection{Motivation: The Need for Reliable Distillation}
+\label{ssec:mpkrd_motivation}
+
+A naive distillation process that simply forces the student to mimic all of the teacher's outputs can be problematic.
+A teacher trained on imputed or noisy data may exhibit low confidence or even make mistakes on certain samples.
+Forcing the student to learn this ``unreliable knowledge'' can harm its performance.
+To motivate our approach, consider two samples (A and B) with the same ground-truth label $[0,1,0]$, where the teacher GNN produces the following output logits:
+
+\begin{itemize}
+    \item \textbf{Sample A:} GNN output logits $[0.3,\, 0.5,\, 0.2]$
+    \item \textbf{Sample B:} GNN output logits $[0.075,\, 0.9,\, 0.025]$
+\end{itemize}
+
+Although both samples are correctly classified, the cross-entropy loss for Sample B is noticeably lower than for Sample A.
+Intuitively, this means the model is more confident in its prediction for Sample B.
+Prediction reliability is systematically quantified using a robust mechanism rather than relying solely on raw logit values.
+
+Therefore, instead of treating all teacher knowledge equally, MP-KRD employs a \textbf{reliability-aware curriculum}.
+The core idea is to quantify sample ``difficulty" or ``unreliability" by the \textbf{stability of the teacher's prediction under noise perturbation},
+measured via entropy change. This allows the student to learn from the most stable and reliable knowledge first.
+
+\subsection{The MP-KRD Workflow}
+\label{ssec:mpkrd_workflow}
+The MP-KRD process is an iterative workflow that adaptively transfers knowledge from the teacher to the student (see Fig.~\ref{fig:mpkrd_workflow}).
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{./context/fig/mp-rkd_training.png}
+    \caption{\textbf{The workflow of the MP-KRD module.} The pruned GNN teacher provides sample reliability signals for curriculum-based distillation, guiding the training of the MP-MLP student via cross-entropy, logit KD (KRD), and feature KD (CWD) losses.}
+    \label{fig:mpkrd_workflow}
+\end{figure}
+
+\newpage
+\subsubsection{\textbf{Step 1: Sample Difficulty Calculation.}}
+The workflow begins by quantifying the reliability of the teacher's prediction for each training sample $i$.
+This is done by measuring the change in the teacher's output entropy when a small Gaussian noise, $\epsilon \sim \mathcal{N}(0, \delta)$, is added to the input features $\mathbf{X}$.
+
+\begin{align}
+    \Delta H_i &= | H(f_{\text{GNN}}(\mathbf{X}', i)) - H(f_{\text{GNN}}(\mathbf{X}, i)) | \\
+    \Delta e_i &= \frac{\Delta H_i - \min_j \Delta H_j}{\max_j \Delta H_j - \min_j \Delta H_j} \label{eq:norm_entropy}
+\end{align}
+The normalized entropy change, $\Delta e_i \in [0, 1]$, serves as our metric for sample difficulty, where a higher value indicates a less reliable or more difficult sample.
+
+\subsubsection{\textbf{Step 2: Curriculum-based Sampling.}}
+In each training epoch, we use a curriculum to select a subset of reliable samples.
+The probability of selecting sample $i$ is governed by a dynamic power function:
+$$ \mathrm{p_i} = 1 - \Delta e_i^{\text{power}} $$
+Based on this probability, a mask is generated via Bernoulli sampling, and only the selected samples ($S_{\text{epoch}}$) are used for training in that epoch.
+This ensures that easier samples (low $\Delta e_i$) are prioritized in the early stages of training.
+
+\subsubsection{\textbf{Step 3: Composite Distillation Objective.}}
+The student model is trained on the sampled subset $S_{\text{epoch}}$ using a composite loss function designed to capture knowledge from multiple perspectives:
+\begin{equation}
+L_{\text{MP-KRD}} = L_{\mathrm{CE}} + \lambda L_{\mathrm{KRD}} + \alpha L_{\mathrm{CWD}}
+\end{equation}
+The hyperparameters $\lambda$ and $\alpha$ balance the contributions of these different forms of knowledge.
+
+\begin{itemize}
+    \item \textbf{Cross-entropy loss} ($L_{\mathrm{CE}}$): The standard supervised cross-entropy loss against the ground-truth labels,
+    \begin{equation}
+        L_{\mathrm{CE}} = -\sum_{i \in N} y_{i} \log \left(\hat{y}_i^S \right)
+    \end{equation}
+    where $y_i$ is the true label and $\hat{y}_i^S$ denotes the student model's softmax output.
+
+    \newpage
+    \item \textbf{Logit-based distillation loss} ($L_{\mathrm{KRD}}$): Encourages the student's output distribution to match the teacher's,
+    \begin{equation}
+        L_{\mathrm{KRD}} = \sum_{i \in S_{\text{epoch}}} \mathrm{KL}(\text{Student}_{\text{logit}}(x_i),\, \text{Teacher}_{\text{logit}}(x_i))
+    \end{equation}
+    where $\mathrm{KL}$ denotes the Kullback-Leibler divergence, and $S_{\text{epoch}}$ is the set of training samples selected for distillation at the current epoch (e.g., the sampled reliable points under the curriculum policy).
+
+    \item \textbf{Feature-based distillation loss} ($L_{\mathrm{CWD}}$): Pushes the student's hidden representations ($z^{\text{student}}_i$) to align with the teacher's ($z^{\text{teacher}}_i$)\cite{CWD},
+    \begin{align}
+        L_{\text{node-wise}}^l &= \mathrm{KL}\left( \mathrm{Softmax}(\mathbf{Z}^{S,l}),\; \mathrm{Softmax}(\mathbf{Z}^{T,l}) \right) \\
+        L_{\text{channel-wise}}^l &= \mathrm{KL}\left( \mathrm{Softmax}\left((\mathbf{Z}^{S,l})^{\top}\right),\; \mathrm{Softmax}\left((\mathbf{Z}^{T,l})^{\top}\right) \right) \\
+        L_{\mathrm{CWD}}^l &= L_{\text{node-wise}}^l + L_{\text{channel-wise}}^l \\
+        L_{\mathrm{CWD}}^{\text{total}} &= \sum_{l \in L} L_{\mathrm{CWD}}^l
+    \end{align}
+    where $l$ indexes the selected layers for distillation, and $L$ is the set of such layers.
+\end{itemize}
+
+\subsubsection{\textbf{Step 4: Adaptive Curriculum Update.}}
+To make the curriculum dynamic, the `power' parameter is updated at the end of each epoch.
+This is done by analyzing the student's current performance against the teacher's.
+
+
+In order to investigate how sample difficulty affects the consistency between teacher and student predictions, all training samples are partitioned into discrete bins based on their normalized entropy change ($\Delta e$).
+For each bin, the frequencies of teacher-student matches and mismatches are computed, and their distributions are illustrated in Figure~\ref{fig:hist_agreement}.
+This provides an empirical foundation for the subsequent curriculum adjustment process.
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[b]{.475\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/hist_true.png}
+        \caption{\textbf{Teacher-student agreement histogram}}
+        \label{fig:hist_true}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{.475\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/hist_false.png}
+        \caption{\textbf{Teacher-student disagreement histogram}}
+        \label{fig:hist_false}
+    \end{subfigure}
+    \caption{\textbf{Histograms of teacher-student agreement (a) and disagreement (b) plotted against the normalized entropy change.} Easier samples (low entropy change) show high agreement, while harder samples show high disagreement.}
+    \label{fig:hist_agreement}
+\end{figure}
+
+To quantitatively measure the agreement probability within each entropy bin, the following metric is defined:
+
+\begin{equation}
+    hist = \frac{hist_{true}}{hist_{true} + hist_{false} + \varepsilon}
+\end{equation}
+where $hist_{true}$ and $hist_{false}$ denote the number of agreement and disagreement samples in $\varepsilon$ is a small constant for numerical stability.
+
+Next, as shown in Figure~\ref{fig:power_fitting}, we fit the empirical probabilities {hist$_{fin}$} using the function:
+\begin{equation}
+    p = 1 - \Delta e^{\text{power}_{fit}}
+\end{equation}
+
+\begin{equation}
+    \text{power}_{fit} = \frac{\log(1 - p)}{\log(\Delta e)}
+\end{equation}
+
+where $\Delta e$ is the normalized entropy change and $\text{power}_{fit}$ is determined by \texbf{least-squares fitting}.
+This process dynamically determines the optimal curriculum power parameter for the current epoch.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.75\linewidth]{./context/fig/hist_fit.png}
+    \caption{The empirical agreement probability ($p_k$) is fitted with the power curve (red line) to dynamically determine the optimal curriculum ``power$_{fit}$'' parameter.}
+    \label{fig:power_fitting}
+\end{figure}
+
+\newpage
+Finally, the ``power'' for the next epoch is updated using an \textbf{Exponential Moving Average (EMA)} to ensure a smooth curriculum progression:
+\begin{equation}
+    \text{power}(t) = \beta \cdot \text{power}(t-1) + (1 - \beta) \cdot \text{power}_{fit}(t)
+\end{equation}
+where $\beta$ is a smoothing coefficient(momentum) and $\text{power}_{fit}(t)$ is the fitted value from the previous step.
+
+\subsection{Deployment}
+\label{sec:mpkrd_deployment}
+After MP-KRD training, only the sparse pruned mirror-projected MLP student is deployed, achieving both high efficiency and robustness through distilled GNN knowledge.

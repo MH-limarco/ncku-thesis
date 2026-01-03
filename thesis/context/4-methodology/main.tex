@@ -1,0 +1,39 @@
+\StartChapter{Methodology}{chapter:methodology}
+
+This chapter details the architecture and workflow of our proposed \textbf{{\framework}} framework.
+As illustrated in Figure~\ref{fig:framework_overview}, {\framework} is an end-to-end pipeline designed to address the challenges of incomplete data, high training costs, and inefficient inference in a unified and synergistic manner.
+The entire framework can be understood as a four-stage process: \\
+(1) Robust Data Imputation \\
+(2) Parallel Teacher-Student Preparation\\
+(3) Teacher Training\\
+(4) Architecture-Aligned Reliable Knowledge Distillation. \\
+The subsequent sections will delve into the technical details of each core module.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{.//context//fig/prism.png}
+    \caption{\textbf{The overall architecture of the {\framework} framework.} The process begins with imputing the incomplete feature matrix via \textbf{APCFI}. In parallel, a powerful GNN teacher is trained on the recovered data, while the \textbf{MPP} module generates a pruned, lightweight MLP student. Finally, the \textbf{MP-KRD} module distills knowledge from the teacher to the student, producing a final model that is both robust and efficient for inference.}
+    \label{fig:framework_overview}
+\end{figure}
+
+\input{./context/4-methodology/_overview}
+
+\input{./context/4-methodology/_apcfi_method}
+
+\newpage
+\input{./context/4-methodology/_tunedGNN_method}
+
+\input{./context/4-methodology/_mpp_method}
+
+\input{./context/4-methodology/_training}
+
+\input{./context/4-methodology/_mp-krd_method}
+
+
+\newpage
+\input{./context/4-methodology/_summary}
+
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

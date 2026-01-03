@@ -1,0 +1,43 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{4}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+ \centering
+\begin{tabular}{L{0.075\textwidth}L{0.075\textwidth}L{0.075\textwidth}|C{0.125\textwidth}C{0.1\textwidth}C{0.105\textwidth}|C{0.125\textwidth}C{0.1\textwidth}C{0.105\textwidth}}
+\hline
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multicolumn{3}{c|}{\textbf{\small Photo}} &
+\multicolumn{3}{c}{\textbf{\small CS}} \\
+\cline{4-9} \textbf{\small tuned}& \textbf{\small MPP} & \textbf{\small MP-KRD} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\small training speed (epoch/s)$\uparrow$} &  \textbf{\small inference time (ms)$\downarrow$} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\small training speed (epoch/s)$\uparrow$} &  \textbf{\small inference time (ms)$\downarrow$} \\
+\midrule
+\textcolor{red}{\XSolidBrush} & \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 95.15&	123.56&	3.45&	95.62&	19.82	&21.22 \\
+
+\textcolor{green1}{\CheckmarkBold}& \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 95.72&	58.67&	6.7&	95.91&	15.47	&27.45
+ \\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{red}{\XSolidBrush}  & 95.5&	78.16&	4.64&	95.8&	21.7&	19.53
+ \\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{green1}{\CheckmarkBold}& \textbf{94.92}&	\textbf{82.29 (78.16)}&	\textbf{2.26}&	\textbf{96.44}&	\textbf{38.59 (21.70)}&	\textbf{8.14} \\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Ablation study of tuned, MPP, and MP-KRD modules on the Photo and CS datasets (SAGE model).} The table reports accuracy, training speed (epoch/s), and inference time (ms) for different module combinations. When MP-KRD is used, values without parentheses denote KD training speed, while values in parentheses indicate GNN training speed.}
+\label{tab:ablation_sage}
+\end{table}
+\endgroup

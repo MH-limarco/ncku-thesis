@@ -1,0 +1,33 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+\begin{table}[htbp]
+    \centering
+\begin{tabular}{l|C{0.125\textwidth}C{0.125\textwidth}C{0.125\textwidth}C{0.125\textwidth}C{0.125\textwidth}|c}
+
+\hline
+\textbf{\small Method} & \textbf{\small Cora
+} & \textbf{\small CiteSeer}& \textbf{\footnotesize PubMed}& \textbf{\footnotesize Photo}& \textbf{\footnotesize Computers}& \textbf{\footnotesize Runtime(s)}\\
+
+\hline
+FP & 0.05 {\footnotesize ± 0.01}&	0.06 {\footnotesize ± 0.00}&	0.06 {\footnotesize ± 0.00}&	0.06 {\footnotesize ± 0.00}& 0.09 {\footnotesize ± 0.00}&	0.06 \\
+PCFI & 73.40 {\footnotesize ± 0.42}&	252.8 {\footnotesize ± 2.29}&	31.18 {\footnotesize ± 0.43}&	32.45 {\footnotesize ± 0.16}&	39.99 {\footnotesize ± 0.17}&	85.97\\
+\textbf{APCFI(our)} & \textbf{0.19 {\footnotesize ± 0.04}}&	\textbf{0.39 {\footnotesize ± 0.02}}&	\textbf{0.19 {\footnotesize ± 0.01}}&	\textbf{0.46 {\footnotesize ± 0.00}}&	\textbf{0.72 {\footnotesize ± 0.00}}&	\textbf{0.39} \\
+\hline
+\end{tabular}
+
+\caption{\textbf{Runtime comparison of different feature imputation methods across datasets.} The table reports the runtime (in seconds) for FP, PCFI, and APCFI methods on several benchmark datasets. APCFI achieves comparable efficiency to FP and significantly outperforms PCFI in computational cost.}
+\label{tab:imputation-runtime}
+\end{table}
+\endgroup

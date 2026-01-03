@@ -1,0 +1,22 @@
+\section{Innovation Summary}
+\label{sec:Innovation_Summary}
+Tables~\ref{tab:apcfi_innovations}–\ref{tab:mpkrd_innovations} provide a component-wise classification of the techniques integrated into the framework, categorized into \textbf{adoption}, \textbf{improvement}, or \textbf{original innovation}. 
+This classification specifies the methodological sources and identifies the components that constitute original contributions.
+
+Within the \textbf{Imputation Module (APCFI)}, the \textbf{Parallel Diffusion} mechanism is classified as an \textbf{original innovation}, enabling simultaneous multi-channel feature estimation to enhance computational stability and scalability on large-scale graphs.  
+In the \textbf{Pruning Module (MPP)}, the \textbf{Proxy Pruning} strategy, also categorized as an \textbf{original innovation}, employs a low-cost MP-MLP proxy during pruning to accelerate both pruning and GNN training, while improving the effectiveness of knowledge distillation.  
+For the \textbf{Distillation Module (MP-KRD)}, the \textbf{Homogeneous Student Structure} represents an \textbf{original innovation} that resolves structural mismatches between teacher and student models, and the modified \textbf{CWD Loss} improves the efficiency and stability of channel-wise knowledge transfer.
+
+\begin{landscape}
+    \begin{table}[ht]
+        \centering
+        \input{context/4-methodology/work_apcfi}
+        \vspace{2\baselineskip}
+        \input{context/4-methodology/work_mpp}
+    \end{table}
+
+    \begin{table}[ht]
+        \centering
+        \input{context/4-methodology/work_kd}
+    \end{table}
+\end{landscape}

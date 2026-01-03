@@ -1,0 +1,47 @@
+\StartChapter{Hyperparameters}{appendix:hyperparameters}
+
+This appendix provides a detailed analysis of the key hyperparameters for our proposed modules, justifying the settings used in our main experiments. To ensure a systematic and unbiased selection, we utilized the \textbf{Optuna}~\cite{akiba2019optuna} to perform automated hyperparameter optimization (HPO). For each major experiment, we ran over 100 trials, optimizing for the validation set accuracy. The following sections present the insights gained from this process.
+
+\section{Analysis of APCFI Hyperparameters}
+\label{sec:appendix_apcfi}
+
+For our \textbf{APCFI} module, we analyzed the two most sensitive hyperparameters: the confidence decay factor \texbf{alpha} and the inter-channel propagation strength \texbf{beta}.
+The contour plot in Figure~\ref{fig:contour_apcfi} visualizes their complex interaction.
+
+\InsertFigure
+    [caption={Contour plot for the key hyperparameters (\texbf{alpha} and \texbf{beta}) of the APCFI module on the Cora dataset.},
+    label={fig:contour_apcfi},
+    scale=0.5]
+    {./context/fig/cora_apcfi_contour_plot.png}
+    %\centering
+    %\includegraphics[width=0.8\linewidth]{./context/fig/cora_kd_contour_plot.png}
+    %\caption{Contour plot for the key hyperparameters (`alpha` and `beta`) of the APCFI module on the Cora dataset.}
+    %\label{fig:contour_apcfi}
+%\end{figure}
+
+The key insight from this plot is the \textbf{strong interaction between alpha and beta}.
+The optimal value for one parameter is highly dependent on the value of the other, leading to several \textbf{islands of high performance}.
+For instance, when \textbf{beta} is very low (around $10^{-5}$), a lower \textbf{alpha} (around 0.2-0.4) can achieve good results.
+However, the largest and most stable high-performance region occurs when \textbf{alpha is in a mid-to-high range (0.5 to 0.8)} and \textbf{beta is in a low-to-mid range (around $10^{-3}$)}.
+This analysis demonstrates that while the module is sensitive to this parameter combination, its behavior is predictable and optimizable, and it provides a clear guideline for selecting a robust set of default parameters.
+
+
+\section{Analysis of MP-KRD Hyperparameters}
+\label{sec:appendix_mpkrd}
+
+For our \textbf{MP-KRD} module, we identified \textbf{alpha}, \textbf{lamb}, and \textbf{momentum} as three critical hyperparameters influencing the distillation curriculum and training dynamics. Figure~\ref{fig:contour_mpkrd} shows the contour plot illustrating the pairwise interactions of these parameters on the final model accuracy.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\linewidth]{./context/fig/cora_kd_contour_plot.png}
+    \caption{Contour plot for the key hyperparameters of the MP-KRD module. Darker blue regions indicate higher accuracy. The plot reveals strong dependencies between parameters.}
+    \label{fig:contour_mpkrd}
+\end{figure}
+
+The analysis reveals several clear trends.
+The most decisive parameter is \textbf{momentum}, where higher values (approximately 0.85 to 1.0) consistently correlate with superior performance.
+Conversely, the \textbf{lamb} parameter performs best in a lower range (approximately 0 to 2.5).
+The impact of \textbf{alpha} is more subtle and interacts with the other two.
+Overall, the plot indicates that the optimal performance \textbf{sweet spot} is achieved with a combination of \textbf{high momentum}, \textbf{low lamb}, and \textbf{mid-to-low alpha}.
+This data-driven insight guided our final parameter selection for the MP-KRD experiments.
+

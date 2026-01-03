@@ -1,0 +1,71 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+\begingroup
+% 交錯底色
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+% 顏色與 tabmini 命令已定義
+
+\centering
+% 確保只給資料列底色，不給multirow那格底色
+
+\begin{tabular}{L{0.125\textwidth}| L{0.175\textwidth} |C{0.13\textwidth} C{0.13\textwidth} C{0.13\textwidth} C{0.13\textwidth} C{0.135\textwidth}| C{0.125\textwidth} C{0.125\textwidth}}
+\toprule
+\textbf{\small Missing Type} & \textbf{\small Method} & \textbf{\small Cora
+} & \textbf{\small CiteSeer} & \textbf{\small PubMed}& \textbf{\small Photo}& \textbf{\small Computers}& \textbf{\small Average}$\uparrow$& \textbf{\small Avg.rank}$\downarrow$ \\
+\midrule
+\multirow{7}{*}{Structural}
+ & Zero* &44.15 {\footnotesize ± 8.44}&	31.68 {\footnotesize ± 4.50}&	48.20 {\footnotesize ± 3.65}&	79.68 {\footnotesize ± 2.17}&	72.03 {\footnotesize ± 1.91}&	55.15 &	8.2 \\
+
+ & LP*  & \textbf{\textcolor{cyan}{74.52 {\footnotesize ± 1.60}}}& \textbf{\textcolor{cyan}{65.89 {\footnotesize ± 2.29}}}&	72.25 {\footnotesize ± 3.78}&	82.42 {\footnotesize ± 2.57}&	76.28 {\footnotesize ± 1.43}&	74.27&	5 \\
+
+ & sRMGCNN* & 29.31 {\footnotesize ± 0.71}&	24.21 {\footnotesize ± 1.35}&	OOM &	26.10 {\footnotesize ± 1.89}&	37.15 {\footnotesize ± 0.12}&	$\star$ &	10.6 \\
+
+ & GCNMF* & 29.20 {\footnotesize ± 1.13}&	24.50 {\footnotesize ± 1.52}&	40.19 {\footnotesize ± 0.95}&	26.82 {\footnotesize ± 6.33}&	30.59 {\footnotesize ± 9.81}&	30.26&	10.4\\
+
+ & PaGNN* & 30.55 {\footnotesize ± 8.85}&	25.69 {\footnotesize ± 3.98}&	50.82 {\footnotesize ± 4.61}&	66.91 {\footnotesize ± 3.99}&	56.50 {\footnotesize ± 3.29}&	46.10&	8.8 \\
+
+ & FP* & 72.84 {\footnotesize ± 2.85}&	59.76 {\footnotesize ± 2.47}&	72.69 {\footnotesize ± 2.66}&	86.57 {\footnotesize ± 1.50}&	77.42 {\footnotesize ± 1.59}&	73.86&	5.6 \\
+
+ & FP & 72.69 {\footnotesize ± 2.84}&	59.65 {\footnotesize ± 2.61}&	72.67 {\footnotesize ± 2.88}&	86.46 {\footnotesize ± 1.50}&	77.58 {\footnotesize ± 1.55}&	73.81&	6.2 \\
+
+ & PCFI* & \textbf{\textcolor{green1}{75.49 {\footnotesize ± 2.10}}}& \textbf{\textcolor{green1}{66.18 {\footnotesize ± 2.75}}} & \textbf{\textcolor{green1}{74.66 {\footnotesize ± 2.26}}}&	\textbf{\textcolor{green1}{87.70 {\footnotesize ± 1.29}}}&	\textbf{\textcolor{green1}{79.25 {\footnotesize ± 1.19}}}&	\textbf{\textcolor{green1}{76.66}}&	\textbf{\textcolor{green1}{1}}\\
+
+ & PCFI & 73.42 {\footnotesize ± 2.74}& \textbf{\textcolor{red}{62.85 {\footnotesize ± 2.83}}}& \textbf{\textcolor{cyan}{73.44 {\footnotesize ± 2.32}}}& \textbf{\textcolor{cyan}{87.44 {\footnotesize ± 1.37}}}& \textbf{\textcolor{cyan}{78.76 {\footnotesize ± 1.45}}}&	\textbf{\textcolor{cyan}{75.18}}&	\textbf{\textcolor{cyan}{2.6}} \\
+
+
+ & \textbf{APCFI(our)} & \textbf{\textcolor{red}{73.44 {\footnotesize ± 2.51}}}& 62.02 {\footnotesize ± 2.79}&	\textbf{\textcolor{red}{73.39 {\footnotesize ± 2.29}}}&	\textbf{\textcolor{red}{87.24 {\footnotesize ± 1.39}}}&	\textbf{\textcolor{red}{77.77 {\footnotesize ± 1.22}}}& \textbf{\textcolor{red}{74.77}}&	\textbf{\textcolor{red}{3.2}} \\
+
+\midrule
+\multirow{7}{*}{Uniform}
+ & Zero* &62.63 {\footnotesize ± 2.64}&	63.19 {\footnotesize ± 1.83}&	54.70 {\footnotesize ± 3.03}&	85.40 {\footnotesize ± 1.33}&	79.49 {\footnotesize ± 1.21}&	69.08&	7.8 \\
+
+ & LP*  & 74.52 {\footnotesize ± 1.60}&	65.78 {\footnotesize ± 2.29}&	72.25 {\footnotesize ± 3.78}&	82.42 {\footnotesize ± 2.57}&	76.28 {\footnotesize ± 1.43}&	74.25&	7.8 \\
+
+ & sRMGCNN* & 29.32 {\footnotesize ± 0.74}& 	24.66 {\footnotesize ± 1.90}&	OOM&	26.58 {\footnotesize ± 1.68}&	37.16 {\footnotesize ± 0.12}&	$\star$ &	10.2 \\
+
+ & GCNMF* & 27.85 {\footnotesize ± 2.27}&	24.29 {\footnotesize ± 1.47}&	39.47 {\footnotesize ± 0.76}&	25.98 {\footnotesize ± 3.90}&	34.78 {\footnotesize ± 4.69}&	30.47&	10.8\\
+
+ & PaGNN* & 53.75 {\footnotesize ± 2.03}&	44.95 {\footnotesize ± 2.59}&	60.24 {\footnotesize ± 3.78}&	85.30 {\footnotesize ± 1.05}&	78.04 {\footnotesize ± 1.18}&	64.45&	8.4 \\
+
+ & FP* & 77.55 {\footnotesize ± 2.01}&	68.00 {\footnotesize ± 2.16}&	73.88 {\footnotesize ± 2.35}&	87.75 {\footnotesize ± 1.07}&	81.47 {\footnotesize ± 0.91}&	77.73&	5.1 \\
+
+ & FP &77.55 {\footnotesize ± 2.01}&	67.47 {\footnotesize ± 2.28}&	73.42 {\footnotesize ± 2.33}&	88.05 {\footnotesize ± 1.16}&	81.25 {\footnotesize ± 1.05}&	77.55&	5.5\\
+
+ & PCFI* &\textbf{\textcolor{cyan}{78.53 {\footnotesize ± 1.39}}}& \textbf{\textcolor{green1}{69.40 {\footnotesize ± 1.85}}}&	\textbf{\textcolor{green1}{76.44 {\footnotesize ± 1.64}}}&	\textbf{\textcolor{green1}{88.60 {\footnotesize ± 1.30}}}&	\textbf{\textcolor{green1}{81.79 {\footnotesize ± 0.70}}}&	\textbf{\textcolor{green1}{78.95}}&	\textbf{\textcolor{green1}{1.2}}\\
+
+ & PCFI & \textbf{\textcolor{green1}{78.57 {\footnotesize ± 1.55}}}&	\textbf{\textcolor{cyan}{68.60 {\footnotesize ± 1.71}}}&	\textbf{\textcolor{cyan}{75.88 {\footnotesize ± 1.74}}}&	\textbf{\textcolor{cyan}{88.54 {\footnotesize ± 1.18}}}&	\textbf{\textcolor{cyan}{81.76 {\footnotesize ± 0.9}}}&	\textbf{\textcolor{cyan}{78.67}}&	\textbf{\textcolor{cyan}{1.8}} \\
+
+ & \textbf{APCFI(our)} & \textbf{\textcolor{red}{78.26 {\footnotesize ± 1.79}}}&	\textbf{\textcolor{red}{68.31 {\footnotesize ± 2.01}}}&	\textbf{\textcolor{red}{75.22 {\footnotesize ± 2.24}}}&	\textbf{\textcolor{red}{88.08 {\footnotesize ± 1.25}}}& \textbf{\textcolor{red}{81.63 {\footnotesize ± 0.98}}}&	\textbf{\textcolor{red}{78.30}}&	\textbf{\textcolor{red}{3.0}} \\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Performance comparison of various feature imputation methods under structural and uniform missing scenarios.} The table reports the accuracy (\%) on five datasets for each method. Methods marked with $*$ are directly introduced from the PCFI paper. APCFI achieves the best or near-best performance and average rank under both missing types. The best, second-best, and third-best results are highlighted in \textbf{\textcolor{green1}{green}}, \textbf{\textcolor{cyan}{cyan}}, and \textbf{\textcolor{red}{red}}
+}
+\label{tab:imputation}
+\endgroup

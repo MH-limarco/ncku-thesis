@@ -1,0 +1,48 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{L{0.21\textwidth}|ccccc|cc}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Computer} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS} & \textbf{\small Physics} & \textbf{\small Avg Accuracy} & \textbf{\small Avg.Rank}  \\
+        \midrule
+
+        {\small GCN w Zero} &38.54 &28.27 &39.32 &22.74&50.41 &35.86 &7.9 \\
+        {\small GCN w FP} &38.64 &59.77 &63.12 &25.83&83.35 &54.14 {\footnotesize \textbf{18.3}$\uparrow$}& 6.4 \\
+        {\small \textbf{MPP-GCN(tuned) w APCFI(our)}} &\textbf{\textcolor{green1}{87.97}} &77.92 &\textbf{\textcolor{green1}{74.13}} &\textbf{\textcolor{red}{87.57}} &\textbf{\textcolor{green1}{93.68}} &\textbf{\textcolor{red}{84.25}} {\footnotesize \textbf{48.4}$\uparrow$}& \textbf{\textcolor{green1}{2.2}} \\
+        {\small \textbf{{\framework}-GCN(our)}} &\textbf{\textcolor{cyan}{86.47}} &79.55 &\textbf{\textcolor{red}{71.63}} &85.20&\textbf{\textcolor{cyan}{93.33}} &83.24 {\footnotesize \textbf{47.4}$\uparrow$}&\textbf{\textcolor{cyan}{3.0}} \\
+        \midrule
+
+        {\small GraphSAGE w Zero} &47.75 &45.49 &52.71 &33.22&50.41 &45.92 &6.7 \\
+        {\small GraphSAGE w FP} &79.73 &\textbf{\textcolor{red}{86.05}} &70.71 &83.79&84.66 &80.99 {\footnotesize \textbf{35.1}$\uparrow$}& 4.6 \\
+        {\small \textbf{MPP-SAGE(tuned) w APCFI(our)}} &\textbf{\textcolor{red}{85.32}} &\textbf{\textcolor{green1}{87.35}} & \textbf{\textcolor{cyan}{73.35}} & \textbf{\textcolor{green1}{88.71}}&89.31 & \textbf{\textcolor{green1}{84.81}} {\footnotesize \textbf{38.9}$\uparrow$}& \textbf{\textcolor{green1}{2.2}} \\
+        {\small \textbf{{\framework}-SAGE(our)}} &83.36 &\textbf{\textcolor{cyan}{86.46}} &70.74 &\textbf{\textcolor{cyan}{87.93}} & \textbf{\textcolor{red}{93.05}} &\textbf{\textcolor{cyan}{84.31}} {\footnotesize \textbf{38.4}$\uparrow$}& \textbf{\textcolor{cyan}{3.0}} \\
+        \bottomrule
+
+    \end{tabular}
+    \caption{\textbf{Comparison under 99.5\% structural feature missing: vanilla GNN, MPP-Tuned, and {\framework} with common imputation methods on medium datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.}
+    \label{tab:structural_mr_medium}
+\end{table}
+\endgroup
+
+
+
+
+
+
+
+
+
+
+

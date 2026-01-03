@@ -1,0 +1,30 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+ \centering
+\begin{tabular}{L{0.175\textwidth} |C{0.1\textwidth} C{0.1\textwidth} C{0.1\textwidth} C{0.1\textwidth} C{0.135\textwidth}| C{0.125\textwidth}}
+\toprule
+\textbf{\small Method} & \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed}& \textbf{\small Photo}& \textbf{\small Computers}& \textbf{\small Average$\uparrow$} \\
+\midrule
+
+APCFI wo soft-PC & 78.35 & 68.37 & 75.69 & 88.09 & 80.65 & 78.23 \\
+\textbf{\small APCFI} & 78.29 & 68.31 & 75.69 & 88.08 & 81.63& \textbf{78.40} \\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Ablation study of soft-PC in APCFI.} The table reports test accuracy on Cora, CiteSeer, PubMed, Photo, and Computers datasets for the APCFI method with and without soft-PC. Avg Accuracy indicates the average accuracy across all datasets.}
+\label{tab:ablation_apcfi}
+\end{table}
+\endgroup

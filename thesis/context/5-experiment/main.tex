@@ -1,0 +1,379 @@
+% ------------------------------------------------
+\StartChapter{Experiment}{chapter:experiment}
+% ------------------------------------------------
+\section{Experimental Setup}
+\label{sec:exp_setup}
+
+To ensure a thorough, fair, and reproducible evaluation of the proposed {\framework} framework,
+this section details the datasets, compared methods, training configurations, and evaluation protocols used throughout this chapter.
+
+\subsection{Datasets}
+Experiments on eight widely-used node classification benchmark dataset are conducted.
+These include three classic citation networks: \textbf{Cora}, \textbf{CiteSeer}, and \textbf{PubMed}~\cite{sen2008collective}.
+Additionally, five medium-to-large-scale graphs are utilized: the \textbf{Computers} and \textbf{Photo} co-purchase networks, the \textbf{CS} and \textbf{Physics} co-authorship networks~\cite{shchur2018pitfalls}, and the \textbf{WikiCS} dataset~\cite{mernyei2020wiki}.
+Key statistics for each dataset are summarized in Table~\ref{tab:datasets}.
+All tasks are formulated as semi-supervised node classification, with accuracy as the primary evaluation metric.
+
+\input{./context/5-experiment/1-datasets.tex}
+
+\newpage
+\subsection{Compared Methods}
+Experiments involve a diverse range of baseline and state-of-the-art models.
+For imputation-specific analysis (Section~\ref{sec:exp_apcfi}),
+The proposed \textbf{APCFI} is compared against \textbf{Zero}, \textbf{LP}~\cite{LP}, \textbf{sRMGCNN}~\cite{sRMGCNN}, \textbf{GCNMF}~\cite{GCNMF}, \textbf{PaGNN}~\cite{PaGNN}, \textbf{FP}~\cite{FP}, and \textbf{PCFI}~\cite{PCFI}.
+For end-to-end model performance (Section~\ref{sec:exp_sota}), \textbf{\framework} is benchmarked against a strong \textbf{TunedGNN}~\cite{tunedGNN}, baseline and recent state-of-the-art models, including \textbf{GraphGPS}~\cite{GPS}, \textbf{NAGphormer}~\cite{NAG},, \textbf{Exphormer}~\cite{Exphormer}, \textbf{GOAT}~\cite{GOAT}, \textbf{NodeFormer}~\cite{NodeFormer}, \textbf{SGFormer}~\cite{SGFormer}, and \textbf{Polynormer}~\cite{Polynormer}.
+Additionally, for knowledge distillation, we directly compare our method with state-of-the-art KD baselines, including \textbf{GLNN}\cite{GLNN} and \textbf{KRD}\cite{KRD}, to demonstrate the effectiveness of our approach under distillation scenarios.
+
+\subsection{Training Details}
+All models are trained using the Adam optimizer. To ensure a fair and robust comparison, critical hyperparameters, including the learning rate, are systematically tuned for each model and dataset using the \textbf{Optuna}~\cite{akiba2019optuna}. Unless otherwise specified, the number of training epochs follows the settings from the TunedGNN benchmark~\cite{tunedGNN}.
+
+To account for stochasticity, \textbf{all reported experimental results are the average of 10 independent runs, each with a different but fixed random seed}. All experiments are conducted on a workstation equipped with an NVIDIA RTX 4090 GPU, an AMD Ryzen 9 7900 CPU, and 64 GB of DDR5 RAM.
+
+\subsection{Missing Data Settings}
+To evaluate robustness, robustness is evaluated by systematically introducing missing data under two primary settings: \textbf{feature missing} and \textbf{edge missing}..
+Feature missing includes both uniform (random) and structural (patterned) masking, with missing rates set to \textbf{0.0}, \textbf{0.3}, \textbf{0.6}, \textbf{0.9}, and the extreme \textbf{0.995}.
+Edge missing uses random masking with rates of \textbf{0.0}, \textbf{0.3}, \textbf{0.6}, and \textbf{0.9}.
+
+\subsection{Dataset Split Strategy}
+To ensure fair comparisons with prior work, the specific data split protocols established in the benchmark literature are adopted to ensure fair comparisons with prior work.
+The experiments use two distinct splitting strategies based on the evaluation's focus:
+
+\newpage
+\subsubsection{Imputation Performance Analysis (Section~\ref{sec:exp_apcfi}).}
+The protocol from the PCFI paper~\cite{PCFI} is strictly followed.
+Specifically, for each dataset, 10 different random splits are generated.
+In each split, 20 nodes per class are allocated for training ($N_{\text{train}}$).
+The validation set size is then set to $1500 - N_{\text{train}}$.
+All remaining nodes are used for testing.
+
+\subsubsection{All Other Experiments (SOTA, Robustness, Ablations).}
+For all other experiments (Sections~\ref{sec:exp_sota} to~\ref{sec:exp_internal_ablation}), the widely-accepted splits from the TunedGNN benchmark~\cite{tunedGNN} are used.
+This involves several settings:
+
+\begin{itemize}
+    \item For \textbf{Cora, CiteSeer, and PubMed}, we use the standard semi-supervised splits as defined in~\cite{sen2008collective}.
+    \item For \textbf{Computers, Photo, CS, and Physics}, we use a standard 60\%/20\%/20\% split for training, validation, and testing, respectively.
+    \item For \textbf{WikiCS}, we use the official public split provided by its original authors~\cite{mernyei2020wiki}.
+\end{itemize}
+Adhering to these established protocols ensures the reliability and comparability of our results with the broader academic community.
+
+% This follows the previously revised Section 5.1
+
+\section{Validating APCFI: A Superior Balance of Accuracy and Efficiency}
+\label{sec:exp_apcfi}
+
+
+This section validates our first claim: that \textbf{APCFI} effectively resolves the performance-efficiency trade-off present in existing feature imputation methods.
+Specifically, we evaluate whether APCFI achieves greater efficiency than its high-performance predecessor, PCFI, while maintaining comparable imputation accuracy.
+The analysis focuses on verifying that the observed efficiency improvements do not compromise the quality of feature imputation.
+
+\subsection{Efficiency Comparison}
+As shown in Table~\ref{tab:imputation-runtime}, APCFI achieves significant improvements in efficiency.
+Across all benchmark datasets, APCFI is only marginally slower than the simple FP baseline.
+Crucially, compared to the high-performance PCFI, APCFI demonstrates a massive efficiency improvement, running on average \textbf{over 200 times faster}.
+This result confirms that APCFI is a practically viable imputation solution for large-scale graphs where PCFI's complexity would be prohibitive.
+\input{./context/5-experiment/2-imputation_runtime}
+
+\newpage
+\subsection{Accuracy under High Missing Rates}
+Table~\ref{tab:imputation} addresses the second question, showing that this immense efficiency gain does not compromise performance. Under both structural and uniform missingness scenarios with up to 99.5\% of features absent, APCFI's accuracy is statistically on par with the much slower PCFI. It consistently and significantly outperforms other baselines, especially in high-missingness regimes.
+
+These results confirm our hypothesis: \textbf{APCFI successfully combines the high accuracy of PCFI with the high efficiency of FP}, establishing it as a powerful and practical foundation for the data imputation stage of our framework.
+\begin{landscape}
+    \begin{table}[ht]
+     \centering
+    \input{./context/5-experiment/3-imputation}
+    \end{table}
+\end{landscape}
+
+% ----------------------------------------------------------------------
+\section{Baseline Performance: Establishing Competitiveness with Complete Data}
+\label{sec:exp_sota}
+
+Before stress-testing our framework's robustness against incomplete data, we must first establish its credibility as a high-performing model in a standard setting.
+To establish a strong baseline, this section evaluates the fundamental soundness of the {\framework} framework and compares its performance with state-of-the-art (SOTA) models under standard, complete-data conditions.
+
+The results, summarized in Tables~\ref{tab:sota_toy} and~\ref{tab:sota}, demonstrate a consistently strong and competitive performance, validating our overall design.
+The nature of this performance, however, shows interesting nuances depending on the GNN backbone.
+
+\input{./context/5-experiment/11-sota_toy}
+
+\begin{landscape}
+    \begin{table}[ht]
+     \centering
+    \input{./context/5-experiment/12-sota}
+    \end{table}
+\end{landscape}
+
+
+
+For the GCN backbone, the proposed {\framework}-GCN not only achieves state-of-the-art results on multiple datasets, such as \textbf{CiteSeer (75.37\%)} and \textbf{PubMed (82.09\%)}, but also delivers substantial gains on medium-scale datasets, with the average accuracy improving from \textbf{85.64\%} to \textbf{92.72\%} (Table~\ref{tab:sota}).
+This improvement is largely attributed to the mitigation of over-parameterization issues common in existing GNNs~\cite{UGS, ICPG}, where excessive model capacity often leads to overfitting.
+The pruning stage effectively removes uninformative channels, reducing model complexity and improving generalization. Furthermore, the MP-KRD distillation process filters noise from the teacher model while maximizing the transfer of informative knowledge, enabling the student model to retain or even surpass the teacher’s performance.
+
+
+
+For the SAGE backbone, {\framework}-SAGE maintains a highly competitive performance, achieving an average accuracy of \textbf{91.68\%} on medium datasets, which is only 0.18\% lower than its strong tuned baseline (Table~\ref{tab:sota}).
+This result indicates that the integration of pruning and MP-KRD does not introduce any meaningful performance degradation, while still delivering the benefits of reduced parameters, faster inference, and enhanced robustness.
+
+
+In conclusion, by demonstrating a significantly improved GCN variant and a competitively on-par SAGE variant, {\framework} establishes its credibility as a top-tier framework.
+Its ability to either substantially boost or maintain SOTA performance validates its fundamental design.
+Having confirmed this strong baseline, we can now proceed to evaluate the framework on its primary and most critical task: \textbf{maintaining robustness in the face of extreme data incompleteness.}
+
+% ----------------------------------------------------------------------
+\section{Validating MPP: Quantifying Gains in Training and Inference Efficiency}
+\label{sec:exp_mpp}
+To rigorously validate the effectiveness of the Mirror Projection Pruning (MPP) mechanism, extensive experiments were conducted to quantify its impact on both training and inference efficiency.
+The key metrics considered include total training time, per-epoch time, average inference latency, and model parameter count.
+
+\subsection{Impact on Computational Costs}
+Our results show that MPP leads to dramatic savings across multiple efficiency metrics. As shown in Table~\ref{tab:efficency_float_inference}, increasing the prune rate from 0.0 to 0.9 drastically reduces the computational cost (measured in GFLOPs) and inference time.
+Specifically, GFLOPs decrease by over \textbf{10x} from \textbf{275.01} to \textbf{25.67}, while the inference time drops by more than \textbf{5x} from \textbf{15.76 ms} to just \textbf{2.79 ms}. This demonstrates the significant resource-saving benefits brought by the MPP pruning mechanism for model deployment.
+
+\input{./context/5-experiment/10-efficiency_float_inference}
+
+\newpage
+Furthermore, Figure~\ref{fig:mpp_training_time} demonstrates that this efficiency gain extends to the entire training pipeline.
+As the prune rate increases, the total training time—which includes the overhead of the MPP process itself—decreases substantially from \textbf{60.04s} to just \textbf{18.48s}, a more than threefold reduction. This confirms that MPP is a highly effective strategy for not only accelerating deployment but also shortening the model development cycle.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\linewidth]{./context/fig/pruned_total_training_time.png}
+    \caption{\textbf{Total training time (including the MPP step) of the MPP-pruned GCN model on the CS dataset under different prune rates.} Higher prune rates lead to a significant reduction in total training time.}
+    \label{fig:mpp_training_time}
+\end{figure}
+
+\subsection{Accuracy-Efficiency Trade-off and the ``Sweet Spot''}
+Having established the significant efficiency gains, we now analyze the trade-off with predictive performance.
+Figure~\ref{fig:mpp_accuracy} plots the test accuracy of both GCN and SAGE models against the prune rate on the Physics dataset.
+
+The results reveal a crucial finding: the existence of a wide \textbf{``efficiency sweet spot''}.
+For both models, the accuracy remains remarkably stable with negligible degradation up to a prune rate of 0.7. For instance, the GCN model's accuracy only drops from \textbf{97.46\%} to \textbf{97.23\%} at a 70\% prune rate,
+while achieving the substantial computational savings described above. This indicates that a large portion of the model's parameters can be removed via MPP without harming its core expressive power.
+While higher prune rates (0.8-0.9) offer further efficiency gains, they come at the cost of a more noticeable, yet still graceful, decline in accuracy, making them suitable for scenarios where efficiency is the absolute priority.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\linewidth]{./context/fig/physics_prune_acc.png}
+    \caption{Test accuracy of SAGE and GCN models on the Physics dataset under different MPP prune rates. The accuracy remains highly stable up to a prune rate of 0.7, revealing a wide ``sweet spot'' for efficiency gains without a significant performance penalty.}
+    \label{fig:mpp_accuracy}
+\end{figure}
+
+In conclusion, our experiments provide strong evidence for the efficacy of the MPP module.
+It enables significant reductions in both training and inference costs while maintaining high accuracy up to aggressive pruning rates, confirming it as a practical and powerful component of the \textbf{\framework} pipeline.
+
+% ------------------------------------
+\section{Stress Test: Evaluating Robustness under Extreme Data Corruption}
+\label{sec:exp_robustness}
+The central promise of \textbf{\framework} is its robustness.
+To rigorously evaluate this property, the framework is tested under extreme levels of data corruption, specifically targeting both the graph structure (edge missing) and node attributes (feature missing).
+
+\subsection{Performance under Edge Missing}
+\label{sec:exp_edge_missing}
+We evaluate the framework’s robustness against structural corruption by varying the edge missing ratio from 0\% (full edge) to 90\%.
+The results, summarized in Tables~\ref{tab:edge_mr_GCN} and~\ref{tab:edge_mr_frame}, show that the distilled \textbf{\framework} student consistently matches or surpasses its GNN teacher across a wide range of edge missing rates.
+
+The improvement is especially notable under severe structural degradation (90\% edge missing rate).
+For instance, on the Photo dataset, the ``TunedGCN'' teacher drops from 95.86\% (full edge) to 91.56\%, whereas ``\framework-GCN'' maintains 93.75\%, reducing the accuracy loss by more than half (from $-4.30$ to $-2.41$ percentage points).
+A similar pattern is observed across most datasets, where \textbf{\framework} achieves smaller relative performance drops compared to its teacher.
+These results indicate that the proposed framework not only preserves competitive accuracy under mild corruption but also provides superior tolerance to extreme edge missing scenarios.
+
+\input{./context/5-experiment/14-edge_mr_tunedgcn}
+\input{./context/5-experiment/13-edge_mr_prism}
+
+
+\subsection{Performance under Feature Missing}
+The most challenging scenario involves evaluating the framework’s resilience when node features are severely corrupted.
+This is investigated under two distinct patterns—uniform and structural missingness—at an extreme rate of 99.5\%.
+
+Across all four testbeds, a clear and consistent narrative emerges: the performance of the final distilled student model (\textbf{\framework-GCN}) is fundamentally governed by the performance of its teacher (the \textbf{MPP-GCN(tuned)} model). This demonstrates a highly successful and faithful knowledge transfer, while also highlighting the inherent limits of distillation when input information is scarce.
+
+\subsubsection{Under Uniform Feature Missing.}
+As shown in Table~\ref{tab:uniform_mr_toy} (classic datasets) and Table~\ref{tab:uniform_mr_medium} (medium datasets), our framework shows remarkable stability.
+For instance, on the medium datasets, the \textbf{MPP-SAGE(tuned)} teacher achieves an average accuracy of 86.69\%.
+\textbf{{\framework}-SAGE} student closely follows at 86.53\%, indicating a near-perfect transfer of knowledge with almost no performance degradation during distillation. This pattern holds true for the GCN backbone as well.
+
+\input{./context/5-experiment/15-comp_mr_u_toy}
+\input{./context/5-experiment/17-comp_mr_u}
+
+\newpage
+\subsubsection{Under Structural Feature Missing.}
+This same trend is observed under the challenging structural missingness scenario,
+as shown in Table~\ref{tab:structural_mr_toy} and Table~\ref{tab:structural_mr_medium}. The \textbf{MPP-Tuned} models, equipped with our APCFI imputer, consistently set the performance benchmark. The corresponding \textbf{{\framework}} student models again track this performance closely.
+For example, on the medium datasets, the \textbf{MPP-GCN(tuned)} teacher scores 84.25\%, while the \textbf{{\framework}-GCN} student achieves a comparable 83.24\%.
+
+\input{./context/5-experiment/16-comp_mr_s_toy}
+\input{./context/5-experiment/18-comp_mr_s}
+
+\subsubsection{Interpretation of Results.}
+Figure~\ref{fig:mr_physics} presents the robustness of various GCN configurations under increasing feature missing ratios on the Physics dataset. Across both structural and uniform missing settings, the \textbf{\framework-GCN} (student) and \textbf{MPP-GCN(tuned)} (teacher) models consistently achieve high accuracy, even at an extreme missing rate of 90\%. This demonstrates the effectiveness and robustness of the proposed framework in handling severe feature incompleteness.
+
+Notably, the performance of the distilled student model is always on par with, but never surpasses, that of its teacher. This observation highlights a key boundary of knowledge distillation in the context of feature missing: while the student can faithfully inherit the relational knowledge captured by the teacher, it cannot recover information that was never present in the input. Consequently, the quality of feature imputation and the upper bound of the teacher’s performance together define a hard ceiling for the student. In contrast, as discussed in the following section, in the case of edge (structural) missing, the student occasionally surpasses the teacher by filtering out noise through distillation. This distinction underlines the fundamental differences in the limits of distillation under feature versus structural incompleteness.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/mr_structural_physics.png}
+        \caption{Performance under Structural Missing.}
+        \label{fig:mr_structural_physics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/mr_uniform_physics.png}
+        \caption{Performance under Uniform Missing.}
+        \label{fig:mr_uniform_physics}
+    \end{subfigure}
+    \caption{ \textbf{Robustness comparison of different GCN configurations under varying feature missing ratios on the Physics dataset.} Both the `MPP-GCN(tuned)' teacher and the final `{\framework}-GCN' student model demonstrate superior robustness, maintaining high accuracy even at a 90\% missing ratio.
+    In contrast, the baseline `GCN w/ Zero' imputation suffers a catastrophic performance collapse. }
+    \label{fig:mr_physics}
+\end{figure}
+
+% ----------------------------------------------------------------------
+
+\section{Dissecting the Framework: An Ablation Study on Core Modules}
+\label{sec:exp_ablation}
+To validate the central claim that the strength of {\framework} arises from the synergistic interaction of its components, a comprehensive ablation study is conducted.
+Each of the three core modules—the \textbf{tuned} backbone, \textbf{Mirror Projection Pruning (MPP)}, and \textbf{Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD)}—is systematically enabled to analyze their individual and combined contributions.
+Experiments are performed on the Photo and CS datasets using both GCN and SAGE backbones.
+This analysis assesses whether all modules are essential for achieving the optimal balance of accuracy, training efficiency, and inference speed.
+
+
+\subsection{Ablation Results with GCN Backbone}
+
+Table~\ref{tab:ablation_gcn} presents the ablation results of the \textbf{Tuned}, \textbf{MPP}, and \textbf{MP-KRD} modules on the Photo and CS datasets (GCN backbone), evaluating node classification accuracy, training speed, and inference latency under various module combinations.
+\input{./context/5-experiment/4-ablation_gcn}
+
+The baseline model (row 1, all modules disabled) demonstrates the standard performance-efficiency trade-off for GCNs. Enabling the \textsc{Tuned} module leads to a substantial increase in accuracy but incurs higher inference time and reduced training speed, highlighting the cost of improved expressiveness.
+The introduction of the MPP module markedly improves computational efficiency, both in training and inference, while the integration of MP-KRD yields further gains in model compactness and inference speed through knowledge distillation.
+
+Of particular note, the configuration that combines all three modules (\textsc{Tuned}, MPP, and MP-KRD) achieves the optimal balance: it consistently yields the highest or near-highest accuracy, fastest inference, and robust training efficiency across both datasets.
+Intermediate configurations confirm that each module addresses the limitations introduced by the others, and their joint integration delivers the best overall trade-off.
+
+
+\subsection{Ablation Results with SAGE Backbone}
+
+Table~\ref{tab:ablation_sage} presents the ablation results for the combination of \textsc{Tuned}, MPP, and MP-KRD modules on the Photo and CS datasets, using the SAGE backbone. Each configuration is evaluated in terms of accuracy, training speed (epoch/s), and inference time (ms).
+\input{./context/5-experiment/5-ablation_sage}
+
+The baseline SAGE model, with all modules disabled, establishes a reference for both performance and computational efficiency. Introducing the \textsc{Tuned} module significantly enhances accuracy but results in increased inference latency and reduced training speed, illustrating the classic accuracy-efficiency trade-off. The application of the MPP module effectively recovers computational efficiency, improving both training speed and inference time, although the accuracy does not surpass that of the tuned backbone.
+
+\newpage
+Incorporating the MP-KRD module, either alone or in combination with other modules, results in a lightweight student model, characterized by improved inference speed and competitive accuracy. Notably, the complete pipeline—integrating \textbf{Tuned}, \textbf{MPP}, and \textbf{MP-KRD}—achieves the best overall trade-off. This configuration delivers the highest or near-highest accuracy and the fastest inference speed across both datasets. For example, on the CS dataset, this combination yields an accuracy of \textbf{96.46\%} with an inference time of only \textbf{8.35 ms}.
+
+These findings further validate the necessity of a holistic integration of all modules. The joint design not only addresses the individual limitations of each component but also provides a synergistic effect, resulting in a lightweight, accurate, and efficient GNN model suitable for real-world deployment.
+
+\subsection{Conclusion of Ablation Study}
+These ablation studies provide compelling evidence that the joint design of the \textbf{tuned backbone}, \textbf{MPP}, and \textbf{MP-KRD} is critical.
+Each module systematically addresses the limitations introduced by the previous one, demonstrating a powerful synergistic effect.
+The results confirm that it is the holistic integration of these components, rather than any single module alone, that enables {\framework} to achieve its final, optimal balance of accuracy, training efficiency, and inference speed.
+
+
+
+% ----------------------------------------------------------------------
+
+\section{Component-Level Validation: Internal Ablation Studies}
+\label{sec:exp_internal_ablation}
+
+Having demonstrated the synergistic success of the overall {\framework} pipeline, we now zoom in to validate the specific design choices within our key modules.
+Targeted ablation studies are conducted to assess the robustness of the TunedGNN architecture, the contribution of the Soft-PC mechanism to APCFI, and the necessity of all components within the MP-KRD module.
+
+
+\subsection{Validating the Robustness of the TunedGNN Backbone}
+This experiment validates our choice of \textbf{TunedGNN} as the foundational teacher architecture.
+We compare its performance against classic GNN counterparts under varying degrees of feature missingness.
+As illustrated in Figures~\ref{fig:tuned_physics}, the \textbf{TunedGNN} variants consistently and substantially outperform the classic GNNs, especially at high missing rates.
+The accuracy of classic GNNs often collapses, while the \textbf{TunedGNN} models exhibit a much more graceful degradation.
+This confirms that our chosen architecture provides the essential resilience needed to serve as a reliable teacher in imperfect data conditions.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/structural_physics.png}
+        \caption{Comparison under Structural missing.}
+        \label{fig:tuned_structural_physics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{./context/fig/uniform_physics.png}
+        \caption{Comparison under Uniform missing.}
+        \label{fig:tuned_uniform_physics}
+    \end{subfigure}
+    \caption{\textbf{Robustness comparison of tuned and classic GCN/SAGE architectures on the Physics dataset.}
+        All models are evaluated using Zero imputation for missing features, providing a uniform baseline for comparison. Both tuned GCN (green) and tuned SAGE (red) with MPP maintain higher accuracy than their classic counterparts as the missing ratio increases, demonstrating the impact of model tuning and pruning on robustness.}
+    \label{fig:tuned_physics}
+\end{figure}
+
+\subsection{Validating the APCFI Design: A Component-wise Ablation Study}
+\label{ssec:ablation_apcfi}
+
+To justify the specific design of the APCFI module, a detailed component-wise ablation study is conducted.
+This analysis isolates the individual contributions of the three key innovations—\textbf{ASDE}, \textbf{DJCD}, and \textbf{Soft-PC}—in terms of both computational efficiency and final imputation accuracy.
+
+\newpage
+\subsubsection{Analysis of Efficiency Contributions}
+Table~\ref{tab:ablation_apcfi_runtime} presents a runtime breakdown of the APCFI components, demonstrating how each innovation contributes to the overall efficiency breakthrough.
+
+The baseline configuration (row 1), which mimics the slow, sequential nature of PCFI, suffers from extremely high runtimes. The results clearly show that:
+\begin{itemize}
+\item Enabling our proposed \textbf{ASDE} module (row 2) reduces the SPD runtime catastrophically, for instance, from 148.89s down to a mere 0.021s on the CiteSeer dataset. This validates ASDE as the key to solving the confidence calculation bottleneck.
+\item Subsequently, enabling \textbf{DJCD} (row 3) provides a similar dramatic speedup for the diffusion step, reducing its runtime from 101.7s to just 0.057s. This confirms that our joint channel diffusion is the key to efficient feature propagation.
+\end{itemize}
+
+\input{./context/5-experiment/20-ablation_apcfi_runtime}
+
+\subsubsection{Analysis of Accuracy Contribution}
+Having established the efficiency gains from ASDE and DJCD, we now investigate the role of the final component, \textbf{Soft-PC}.
+Notably, Table~\ref{tab:ablation_apcfi_runtime} (comparing rows 3 and 4) shows that adding Soft-PC introduces \textbf{negligible computational overhead}. Its contribution lies in enhancing accuracy.
+
+\input{./context/5-experiment/19-ablation_apcfi}
+The results of this targeted ablation study, as presented in Table~\ref{tab:ablation_apcfi}, reveal a nuanced impact of the Soft-PC mechanism.
+While the inclusion of \texbf{Soft-PC} results in a marginal performance decrease on three out of five datasets (Cora, CiteSeer, and Photo), it yields a substantial accuracy improvement on the Computers dataset (from 80.65\% to 81.63\%).
+This notable gain is sufficient to increase the overall average accuracy from 78.23\% to 78.40\%.
+These findings indicate that the adaptive, context-aware weighting provided by Soft-PC is particularly advantageous for specific graph structures, such as the co-purchase network in the Computers dataset.
+Although the effect is not uniformly positive across all benchmarks, the potential for significant improvement on certain graph topologies, combined with a slight overall performance increase, supports the inclusion of Soft-PC as a valuable component to enhance the general robustness of the \textbf{APCFI} model.
+
+\subsubsection{Conclusion}
+In conclusion, this component-wise analysis validates our design. \textbf{ASDE} and \textbf{DJCD} are responsible for the massive efficiency breakthroughs that make APCFI practical for large-scale graphs, while \textbf{Soft-PC} provides a final layer of performance refinement at virtually no additional cost. This justifies the inclusion of all three innovations in our final APCFI model.
+
+\subsection{Validating the MP-KRD Design}
+Finally, the complex MP-KRD module is dissected to clarify the contribution of its core components: the reliability-aware curriculum (\textbf{KRD}), the structurally-aligned student (\textbf{MP-MLP}), and the feature-based loss (\textbf{CWD-Loss}).
+
+\subsubsection{\textbf{For classic datasets}}
+\\Tables~\ref{tab:ablation_kd_gcn_toy} and~\ref{tab:ablation_kd_sage_toy} present the ablation results of the MP-KRD module on Cora, CiteSeer, and PubMed using GCN and SAGE backbones.
+Across both architectures, integrating all three components—KRD, MP-MLP, and CWD-loss—consistently yields the highest average accuracy (\textbf{80.83\%} for GCN and \textbf{78.18\%} for SAGE), surpassing all partial configurations.
+Even on smaller and more homogeneous graphs, each component makes a distinct positive contribution, and their combination produces a clear synergistic effect in accuracy and robustness.
+se findings indicate that, even on smaller and more homogeneous graphs, each component makes a distinct and beneficial contribution to the overall distillation process.
+
+\input{./context/5-experiment/6-ablation_kd_gcn_toy}
+\input{./context/5-experiment/7-ablation_kd_sage_toy}
+
+\newpage
+\subsubsection{\textbf{For Medium-scale datasets}}
+
+\\Tables~\ref{tab:ablation_kd_gcn} and~\ref{tab:ablation_kd_sage} report the results on Computers, Photo, WikiCS, CS, and Physics.
+
+\input{./context/5-experiment/8-ablation_kd_gcn}
+For the GCN backbone, the complete MP-KRD setup achieves the highest average accuracy of \textbf{92.76\%}, outperforming all ablated variants and showing notable gains on datasets such as Photo (+0.61\%) and CS (+0.09\%) compared to the KRD-only setting.
+
+\input{./context/5-experiment/9-ablation_kd_sage}
+
+For the SAGE backbone, the full configuration reaches \textbf{91.68\%}, slightly surpassing the KRD teacher baseline (\textbf{91.51\%}) while maintaining comparable inference efficiency.
+
+
+\subsubsection{\textbf{Summary}}
+
+\\These results confirm that each component—knowledge distillation, MLP-based message passing, and curriculum-weighted loss—contributes positively to the distilled student's performance.
+More importantly, their integration not only improves robustness under various dataset characteristics but also enables efficient, graph-agnostic inference without compromising accuracy.
+Notably, the proposed MP-KRD design allows the student model to achieve performance that is consistently close to, and in several cases surpasses, that of its GNN teacher, demonstrating its strong potential for real-world deployment where both efficiency and predictive quality are critical.
+
+
+
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

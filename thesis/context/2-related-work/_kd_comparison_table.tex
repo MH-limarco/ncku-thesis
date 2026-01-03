@@ -1,0 +1,29 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+%\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{tabular}{L{0.2\textwidth}|C{0.2\textwidth}C{0.125\textwidth}C{0.125\textwidth}L{0.25\textwidth}}
+
+\toprule
+\textbf{\small Method} & \textbf{\small Student Source} & \textbf{\small {Feature Alignment}} & \textbf{\small {Handles Noisy Teacher}} & \textbf{\small Key Idea} \\
+\midrule
+LSP~\cite{LSP} & Small GNN & {\XSolidBrush} & {\XSolidBrush} & Transfer the topological structure \\
+GNN-SD~\cite{GNNSD} & Teacher GNN & \textbf{\CheckmarkBold} & {\XSolidBrush} & GNNs Self-Distillation framework \\
+TinyGNN~\cite{TinyGNN} & Small GNN & {\XSolidBrush} & {\XSolidBrush} &  Distillation with fewer parameter GNNs\\
+GLNN~\cite{GLNN} & Arbitrary MLP & {\XSolidBrush} & {\XSolidBrush} & Learning predictions from GNNs \\
+KRD~\cite{KRD} & Arbitrary MLP & {\XSolidBrush} & {\CheckmarkBold} & Reliability-based learning \\
+\textbf{MP-KRD(Ours)} &  \textbf{Isomorphic MLP} & \textbf{\CheckmarkBold} & \textbf{\CheckmarkBold} & Structural Alignment + Reliability Course Learning \\
+
+\midrule
+\end{tabular}
+\caption{\textbf{Comparison of representative knowledge distillation methods for graph models.}}
+\label{tab:method_kd}
+\endgroup

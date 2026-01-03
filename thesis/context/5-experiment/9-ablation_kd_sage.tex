@@ -1,0 +1,55 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{4}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+\begin{table}[htbp]
+ \centering
+\begin{tabular}{C{0.06\textwidth}C{0.06\textwidth}C{0.06\textwidth}|C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}C{0.12\textwidth}|C{0.11\textwidth}}
+
+ \multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+ \textbf{\small Computers} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS} &	\textbf{\small Physics}\\
+\cline{4-8} \textbf{\scriptsize KRD}& \textbf{\scriptsize MP-MLP} & \textbf{\scriptsize CWDLoss} &
+ \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} &  \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))}& \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} &   \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))} &  \textbf{\footnotesize Accuracy} \textbf{\scriptsize (Inference(ms))}& \textbf{\small Average} \textbf{\footnotesize Accuracy}\\
+
+\midrule
+ {\footnotesize -} & {\footnotesize -} & {\footnotesize -} & 92.95 \textbf{\scriptsize (7.94)} & 95.80 \textbf{\scriptsize (4.82)} & 80.22 \textbf{\scriptsize (3.59)} & 95.84\textbf{\scriptsize(20.51)} & 96.81\textbf{\scriptsize(50.77)} & 92.32\\
+
+ \midrule
+ \textcolor{red}{\XSolidBrush} & \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 85.18	\textbf{\scriptsize (2.39)}& 93.37 \textbf{\scriptsize (2.42)}& 77.28 \textbf{\scriptsize (1.42)}& 93.68	\textbf{\scriptsize (6.17)}&96.50\textbf{\scriptsize (10.15)}& 89.20
+\\
+
+\textcolor{green1}{\CheckmarkBold}& \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  &  \textbf{\textcolor{green1}{91.37 \textbf{\scriptsize (2.39)}}}	& \textbf{\textcolor{green1}{95.10\textbf{\scriptsize (2.42)}}}	& \textbf{\textcolor{red}{80.18 \textbf{\scriptsize (1.42)}}}	&93.75	\textbf{\scriptsize (6.17)}& \textbf{\textcolor{green1}{97.14\textbf{\scriptsize (10.15)}}}	& \textbf{\textcolor{red}{91.51}}
+
+
+{\textbf{\footnotesize 2.31$\uparrow$}}\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{red}{\XSolidBrush}   &87.07 \textbf{\scriptsize (2.39)}&	\textbf{\textcolor{red}{94.27 \textbf{\scriptsize (2.12)}}}&	\textbf{\textcolor{green1}{80.52 \textbf{\scriptsize (1.69)}}}&	\textbf{\textcolor{green1}{96.46 \textbf{\scriptsize (6.34)}}} &	\textbf{\textcolor{red}{96.99 \textbf{\scriptsize (8.49)}}}&91.06
+
+
+{\textbf{\footnotesize 1.86$\uparrow$ }}
+\\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{green1}{\CheckmarkBold}& \textbf{\textcolor{red}{90.89 \textbf{\scriptsize (2.39)}}}&	94.92 \textbf{\scriptsize (2.12)}&	79.60 \textbf{\scriptsize (1.69)}&	\textbf{\textcolor{red}{96.44 \textbf{\scriptsize (6.34)}}}&	96.50 \textbf{\scriptsize (8.49)}&	\textbf{\textcolor{green1}{91.68}}
+
+
+{\textbf{\footnotesize 2.48$\uparrow$ }}
+\\
+
+ \bottomrule
+ \end{tabular}
+ \caption{\textbf{Ablation study of KRD, MP-MLP, and CWD-loss components in the MP-KRD module on medium-scale datasets using the SAGE model.} The table reports test accuracy on Computers, Photo, WikiCS, CS, and Physics datasets for different component combinations. Avg Accuracy indicates the average accuracy and relative change. The best, and second-best results are highlighted in \textbf{\textcolor{green1}{green}}, and \textbf{\textcolor{red}{red}}}
+ \label{tab:ablation_kd_sage}
+ \end{table}
+\endgroup

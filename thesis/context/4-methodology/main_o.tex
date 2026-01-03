@@ -1,0 +1,410 @@
+% ------------------------------------------------
+\StartChapter{Methodology}{chapter:methodology}
+% ------------------------------------------------
+
+\section{Overall Architecture}
+
+The proposed framework, Limelight, is designed as a unified, modular, and scalable Graph Neural Network (GNN) architecture tailored for real-world scenarios characterized by high feature/edge missingness, elevated training costs, and stringent inference efficiency requirements.
+Limelight systematically integrates four synergistic modules:
+
+\begin{enumerate}
+    \item Approximate Pseudo-Confidence Feature Imputation (APCFI):
+
+    Efficiently imputes missing node features by leveraging both observed features and graph topology, maintaining high imputation quality even under severe missingness.
+
+    \item Mirror Projection Pruning (MPP):
+
+    Pre-training module that prunes both the graph structure and model weights before GNN training, resulting in a simplified yet expressive backbone that accelerates training and reduces computational overhead.
+
+    \item TunedGNN:
+
+    Applies architectural optimizations such as layer normalization, dropout, and residual connections, which substantially enhance the robustness and stability of the model in the presence of incomplete data.
+
+    \item Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD):
+
+    Transfers knowledge from the optimized GNN to a lightweight MLP via a mirror projection mechanism and reliability-aware distillation, enabling resource-efficient downstream inference.
+
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{./context/fig/prism.png}
+    \caption{\textbf{High-level overview of the proposed PRISM framework.} The framework integrates three core modules: APCFI (blue) for robust feature imputation via pseudo-confidence and soft-pseudo-confidence, MPP (green) for efficient mirror projection pruning between GNN and isomorphic MLP, and MP-KRD (red) for reliability-aware knowledge distillation. The legend (top right) illustrates the meaning of different feature types and information flow.}
+    \label{fig: framework-prism }
+\end{figure}
+
+The overall workflow begins with an incomplete input graph $(\mathcal{G}=(\mathcal{V}, \mathcal{E}, \mathbf{X}, \mathbf{M}))$. APCFI is first applied to recover missing node features, producing a completed feature matrix. Next, MPP performs pre-training pruning on both the adjacency matrix and model parameters, yielding a compact GNN structure. TunedGNN further fine-tunes architectural hyperparameters to maximize resilience and performance. Finally, MP-KRD distills the knowledge from the optimized GNN into a homomorphic MLP, producing a highly efficient inference model that retains task accuracy under extreme missingness.
+
+This modular and end-to-end pipeline not only enhances the adaptability of GNNs to incomplete and large-scale graph data but also ensures practical deployment by minimizing both training and inference resource requirements.
+
+
+\section{Approximate Pseudo-Confidence Feature Imputation (APCFI)}
+Graph Neural Networks (GNNs) often encounter missing node features in real-world scenarios, which can severely undermine their performance. Existing non-learning feature propagation methods such as Feature Propagation (FP) provide computational efficiency but lack the ability to distinguish the reliability of different feature channels. Pseudo-Confidence Feature Imputation (PCFI)[ref] improves upon this by introducing a notion of channel-wise pseudo-confidence based on the shortest path distance (SPD) from each node to the set of observed nodes, thereby enabling more informed and robust imputation. However, PCFI’s k-hop traversal for SPD calculation can be computationally prohibitive for large-scale or highly incomplete graphs, and its direct use of pseudo-confidence as weights fails to capture subtle channel-wise heterogeneity.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{./context/fig/apcfi.png}
+    \caption{\textbf{Workflow of the APCFI module within the PRISM framework.} The module imputes missing node features by leveraging pseudo-confidence and soft-pseudo-confidence derived from the ASDE matrix, combined with graph diffusion and feature propagation. The recovered feature matrix is then used for downstream GNN training.}
+    \label{fig: framework-apcfi}
+\end{figure}
+
+To address these limitations, our method incorporates two main innovations: (1) an efficient Approximate Shortest Distance Estimation (ASDE) for scalable pseudo-confidence calculation, and (2) a row-wise softmax normalization of the channel-wise pseudo-confidence scores for each node, which we refer to as \textbf{Soft Pseudo-Confidence}. This dynamic reweighting allows the model to more finely differentiate the importance of each feature channel during the imputation process, even when pseudo-confidence values are numerically similar.
+
+\subsection{Approximate Shortest Distance Estimation (ASDE)}
+To efficiently support feature imputation in large-scale and highly incomplete graphs, we introduce the Approximate Shortest Distance Estimation (ASDE) mechanism for scalable pseudo-confidence calculation. Unlike the original PCFI framework—which computes channel-wise shortest path distances via exhaustive k-hop traversals—ASDE leverages message-passing neural network (MPNN) aggregation to rapidly estimate the minimum hop distance from each node to the set of observed nodes for each feature channel.
+
+Formally, for each feature channel \(d\), we define the set of source nodes with observed features as \(S = V_k^{(d)}\). The shortest distance vector \(\mathbf{s}_i^{(d)}\) is initialized as:
+
+\EquationBegin
+\mathbf{s}_i^{(d), (0)} =
+\begin{cases}
+1, & \text{if } i \in S \\
+0, & \text{otherwise}
+\end{cases}
+\EquationEnd
+
+At each propagation step \(t\), we iteratively update the distance for each node as:
+
+\EquationBegin
+\mathbf{s}_i^{(d), (t)} =
+\begin{cases}
+\mathbf{s}_i^{(d), (t-1)}, & \text{if } \mathbf{s}_i^{(d), (t-1)} > 0 \\
+\max_{j \in \mathcal{N}(i)} \mathbf{s}_j^{(d), (t-1)} + 1, & \text{otherwise}
+\end{cases}
+\EquationEnd
+
+where $(\mathcal{N}(i))$ denotes the set of neighbors of node$(i)$. This process continues until all nodes are assigned a distance or a maximum number of hops is reached. Nodes never reached within the hop limit are assigned:
+
+\EquationBegin
+SPD_{i, S}^{(d)} = \text{maximum number of hops}
+\EquationEnd
+
+Based on the final distance matrix, the channel-wise pseudo-confidence score is defined as:
+
+\EquationBegin
+c_{i}^{(d)} = \alpha^{\text{SPD}_{i, S}^{(d)}}
+\EquationEnd
+
+where $\alpha \in (0, 1))$ is a decay coefficient controlling the reliability attenuation as the distance increases. This design ensures that information propagated from closer, well-connected nodes is assigned higher confidence during the subsequent imputation steps, while distant or isolated nodes are naturally down-weighted.
+
+Compared to the original PCFI approach, ASDE achieves significant gains in computational efficiency and scalability, enabling robust and principled pseudo-confidence modeling even under high missingness and large graph scenarios.
+
+\subsection{Dynamic Channel Diffusion}
+
+After obtaining pseudo-confidence scores via ASDE, feature imputation is performed using a process we term \textbf{Dynamic Channel Diffusion}. This step follows the core structure of PCFI[ref] but incorporates a crucial innovation: the use of \textbf{soft-Pseudo Confidence}—row-wise softmax normalization applied to the pseudo-confidence matrix for each node.
+
+In the original PCFI, pseudo-confidence values are directly used as aggregation weights, which can result in equal or nearly equal weighting for channels with similar confidence scores, thus failing to reflect nuanced differences in channel reliability. To address this, we compute the soft-Pseudo Confidence for node \(i\) as:
+
+\EquationBegin
+w_{i, d} = \frac{\exp(c_{i}^{(d)})}{\sum_{k} \exp(c_{i}^{(k)})}
+\EquationEnd
+
+where $(c_{i}^{(d)})$ is the pseudo-confidence of node \(i\) for channel \(d\). This normalization enables the model to adaptively differentiate the influence of each channel.
+
+\textbf{For example}, consider a pseudo-confidence matrix for three nodes and two channels:
+
+\begin{equation}
+\text{PC} =
+\begin{bmatrix}
+0.5 & 0.5 \\
+1 & 0.7 \\
+0.25 & 1
+\end{bmatrix}
+\end{equation}
+
+
+Applying row-wise softmax normalization yields:
+
+\begin{equation}
+\text{soft-PC} =
+\begin{bmatrix}
+0.292 & 0.258 \\
+0.481 & 0.316 \\
+0.227 & 0.426
+\end{bmatrix}
+\end{equation}
+
+Even if the original pseudo-confidence values are identical (e.g., [0.5, 0.5]), soft-Pseudo Confidence introduces subtle differentiation, thus improving the adaptiveness of channel weighting.
+
+The \textbf{Dynamic Channel Diffusion} process then iteratively imputes missing features as:
+
+\begin{equation}
+\hat{x}_{i, d}^{(t+1)} =
+\begin{cases}
+x_{i, d}, & \text{if } (i,d) \text{ is observed} \\
+\frac{\sum_{j \in \mathcal{N}(i)} w_{i, d} \cdot x_{j, d}^{(t)}}{\sum_{j \in \mathcal{N}(i)} w_{i, d}}, & \text{otherwise}
+\end{cases}
+\end{equation}
+
+where $(\mathcal{N}(i))$ is the neighbor set of node$(i)$ and $t$ is the diffusion step. The observed values remain unchanged throughout all iterations.
+
+By introducing soft-Pseudo Confidence, Dynamic Channel Diffusion prevents all channels from being treated equally, improves numerical stability, and allows the model to flexibly adapt to channel heterogeneity—leading to superior imputation performance, particularly under high missingness.
+
+\subsection{Node-wise Inter-Channel Propagation}
+To further enhance the imputation quality after dynamic channel diffusion, we adopt the node-wise inter-channel propagation step as originally proposed in PCFI[ref]. While the prior diffusion stage recovers missing features by leveraging the graph structure and pseudo-confidence in a channel-wise manner, this stage explicitly models inter-channel dependencies within each node, which are often crucial for capturing latent relationships and improving overall imputation performance.
+
+The node-wise inter-channel propagation constructs, for each node$(i)$, a fully connected directed graph $(H(i))$ over the feature channels, with the weighted adjacency matrix $(B^{(i)} \in \mathbb{R}^{F \times F})$ defined as:
+
+\begin{equation}
+B_{a,b}^{(i)} =
+\begin{cases}
+\beta (1 - \alpha^{S_{i,a}}) \alpha^{S_{i,b}} R_{a,b}, & \text{if } a \ne b \\
+0, & \text{if } a = b
+\end{cases}
+\end{equation}
+
+where $(R_{a,b})$ is the Pearson correlation coefficient between channel$(a)$ and channel$(b)$ across all nodes, $(\alpha^{S_{i,a}})$ and $(\alpha^{S_{i,b}})$ are the pseudo-confidence scores for node$(i)$ and channels $(a, b)$, and $(\beta)$ is a scaling hyperparameter.
+
+The refinement for node \(i\) is performed as:
+
+\begin{equation}
+\tilde{\mathbf{x}}_{i}^\top = \hat{\mathbf{x}}_{i}^\top + B^{(i)} (\hat{\mathbf{x}}_{i} - \mathbf{m})^\top
+\end{equation}
+
+where $(\hat{\mathbf{x}}_{i})$ is the row vector of recovered features for node$(i)$ after channel diffusion, and $(\mathbf{m} = [m_1, m_2, \dots, m_F])$ is the vector of channel means.
+
+This design ensures that:
+1. Highly correlated channels propagate more information to each other;
+2. Channels with low pseudo-confidence are more strongly influenced by other channels;
+3. Channels with high pseudo-confidence serve as reliable information sources.
+
+By iteratively applying this node-wise inter-channel propagation across all nodes, the final imputed feature matrix $(\tilde{\mathbf{X}})$ is obtained and used for downstream GNN tasks. This step allows global channel correlation structure and local channel confidence to be jointly leveraged, leading to enhanced robustness and accuracy in feature imputation under severe missingness.
+
+\subsection{Innovations and Advantages}
+APCFI brings several key advancements over the original PCFI framework. First, Approximate Shortest Distance Estimation (ASDE) is tailored for efficient batched and parallel computation on modern hardware, supporting scalable pseudo-confidence estimation even in large and highly incomplete graphs—an advantage unattainable by the original k-hop traversal. Second, our introduction of soft-Pseudo Confidence, via row-wise softmax normalization, enables the model to adaptively and finely reweight feature channels, overcoming the equal-weighting limitation of PCFI and enhancing stability, expressiveness, and robustness. The modular design of APCFI ensures seamless integration with advanced GNN modules such as pruning and knowledge distillation. These improvements together deliver substantial gains in imputation quality and downstream performance, especially under high missingness and data heterogeneity. Empirical results further validate the effectiveness of APCFI across diverse benchmarks (see Section 5).
+
+
+
+
+Scalability and efficiency are critical challenges for Graph Neural Networks (GNNs) in real-world large-scale and resource-constrained applications.
+
+Compared to the well-established and mature pruning methodologies developed for Multi-Layer Perceptrons (MLPs) and Convolutional Neural Networks (CNNs), pruning research in the GNN domain remains relatively limited and less mature.
+
+Most existing GNN pruning methods require tightly coupled optimization with model training, resulting in significant computational overhead and incompatibility with state-of-the-art, modular pruning toolkits originally designed for other neural architectures.
+
+
+To address these limitations, we propose Mirror Projection Pruning (MPP), a unified proxy pruning framework that leverages the structural isomorphism between GNNs and MLPs.
+
+Specifically, MPP projects the original GNN into an isomorphic MLP space and performs pruning on this proxy model using advanced, flexible toolkits from the MLP/CNN domain.
+
+The pruning results are then mapped back to the original GNN, enabling the direct transfer of mature pruning strategies from other domains to GNNs without entangling the pruning process with GNN training itself.
+
+
+
+Scalability and efficiency are critical challenges for Graph Neural Networks (GNNs) in real-world large-scale and resource-constrained applications.
+
+Compared to the well-established and mature pruning methodologies developed for Multi-Layer Perceptrons (MLPs) and Convolutional Neural Networks (CNNs), pruning research in the GNN domain remains relatively limited and less mature.
+
+Most existing GNN pruning methods require tightly coupled optimization with model training, resulting in significant computational overhead and incompatibility with state-of-the-art, modular pruning toolkits originally designed for other neural architectures.
+
+
+To address these limitations, we propose Mirror Projection Pruning (MPP), a unified proxy pruning framework that leverages the structural isomorphism between GNNs and MLPs.
+
+Specifically, MPP projects the original GNN into an isomorphic MLP space and performs pruning on this proxy model using advanced, flexible toolkits from the MLP/CNN domain.
+
+The pruning results are then mapped back to the original GNN, enabling the direct transfer of mature pruning strategies from other domains to GNNs without entangling the pruning process with GNN training itself.
+
+
+
+Scalability and efficiency are critical challenges for Graph Neural Networks (GNNs) in real-world large-scale and resource-constrained applications.
+
+Compared to the well-established and mature pruning methodologies developed for Multi-Layer Perceptrons (MLPs) and Convolutional Neural Networks (CNNs), pruning research in the GNN domain remains relatively limited and less mature.
+
+Most existing GNN pruning methods require tightly coupled optimization with model training, resulting in significant computational overhead and incompatibility with state-of-the-art, modular pruning toolkits originally designed for other neural architectures.
+
+
+To address these limitations, we propose Mirror Projection Pruning (MPP), a unified proxy pruning framework that leverages the structural isomorphism between GNNs and MLPs.
+
+Specifically, MPP projects the original GNN into an isomorphic MLP space and performs pruning on this proxy model using advanced, flexible toolkits from the MLP/CNN domain.
+
+The pruning results are then mapped back to the original GNN, enabling the direct transfer of mature pruning strategies from other domains to GNNs without entangling the pruning process with GNN training itself.
+
+
+
+
+
+\begin{figure}[ht]
+  \centering
+  \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        node distance=1.2cm and 1cm,
+        box/.style={
+            draw, thick, rectangle, rounded corners,
+            minimum width=2.5cm, minimum height=1cm, align=center
+        },
+        arr/.style={-{Stealth[length=3mm,width=2mm]}, thick}
+    ]
+      % Nodes
+      \node[box] (gnn) {Original GNN \\ $\theta_{\text{sparse}}$};
+      \node[box, right=of gnn] (proj) {Mirror Projection \\ (GNN $\to$ MLP)};
+      \node[box, right=of proj] (train) {Train Isomorphic MLP};
+      \node[box, right=of train] (prune) {Prune MLP \\ (LAMP/Hessian/... )};
+      \node[box, right=of prune] (inv) {Inverse Mapping \\ (MLP $\to$ GNN)};
+      \node[box, right=of inv] (pruned) {Pruned GNN \\ $\theta_{\text{sparse}}$};
+
+      % Arrows
+      \draw[arr] (gnn) -- (proj);
+      \draw[arr] (proj) -- (train);
+      \draw[arr] (train) -- (prune);
+      \draw[arr] (prune) -- (inv);
+      \draw[arr] (inv) -- (pruned);
+
+      % 下游任務 (moved under pruned)
+      \node[box, below=of pruned, yshift=0.3cm] (down) {Downstream Training};
+      \draw[arr] (pruned.south) -- (down.north);
+
+      % 空間標識
+      \node[above=0.1cm of train] {\small \textbf{MLP-space}};
+      \node[above=0.1cm of gnn]   {\small \textbf{GNN-space}};
+      \node[above=0.1cm of pruned]   {\small \textbf{GNN-space}};
+    \end{tikzpicture}%
+  }
+\caption{\textbf{Workflow of the MPP (Mirror Projection Pruning) module in the PRISM framework.} The process projects the original GNN to an isomorphic MLP, performs pruning in the MLP-space using techniques such as LAMP or Hessian-based methods, and then maps the pruned structure back to the GNN-space for efficient downstream training.}
+
+  \label{fig: framework-mpp}
+\end{figure}
+
+
+Efficient pruning is essential for scaling Graph Neural Networks (GNNs) to large-scale and resource-constrained scenarios. However, most existing GNN pruning methods require alternating or joint optimization with the training process, leading to high computational overhead and limited compatibility with the extensive pruning toolkits developed for multi-layer perceptrons (MLPs). To overcome these challenges, we propose \textbf{Mirror Projection Pruning (MPP)}, a unified framework that leverages the structural similarity between GNNs and MLPs to enable pre-training pruning of GNN parameters.
+
+\subsection{Theoretical Motivation: GNN-MLP Isomorphism}
+The core innovation of MPP lies in projecting the original GNN model—including message-passing operations and learnable parameters—into an isomorphic MLP space (MP-MLP). This design is inspired by recent studies such as MLPinit [ref], which demonstrate that, under proper initialization and architectural alignment, the embedding spaces of GNNs and MLPs exhibit a high degree of similarity, especially for multi-layer linear transformations. Thus, the representational capacity and structural semantics of the original GNN are faithfully preserved in the MP-MLP, as formalized by the mapping function $(f_{G \rightarrow M})$. This theoretical foundation enables any pruning operation conducted in the MP-MLP space to be effectively transferred back to the GNN without loss of expressiveness.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{.//context//fig/mp-mlp_view.png}
+    \caption{\textbf{}}
+    \label{fig:mlp-gnn-view}
+\end{figure}
+
+\subsection{Pruning in the MLP Space}
+Within the MP-MLP, we apply advanced parameter importance scoring methods—including Layer-Adaptive Magnitude Pruning (LAMP), Hessian-based criteria, and classical magnitude-based pruning—to evaluate and rank the importance of each weight. We retain only the parameters with the highest importance scores, setting the remainder to zero according to a predefined pruning ratio, resulting in a binary pruning mask $(M_{MLP})$. This step is fully compatible with modern MLP pruning toolkits and supports highly parallelized and batched computation.
+
+
+After generating the pruning mask $(M_{MLP})$ in the MP-MLP, we use the inverse mapping $(f_{M \rightarrow G})$ to transfer the mask back to the original GNN parameter space, yielding $(M_{GNN})$. The pruned GNN is then obtained by applying $(M_{GNN})$ to its weight matrices, ensuring that only the most critical parameters—identified through the MP-MLP pruning—are retained.
+
+\subsection{Advantages and Practical Benefits}
+MPP enables one-shot, pre-training pruning, dramatically reducing the total training time by eliminating the need for repeated alternating optimization. The modular pipeline is highly compatible with the vast MLP pruning ecosystem, allowing researchers and practitioners to leverage mature tools and best practices. The isomorphic mapping between GNN and MP-MLP guarantees that the expressive power and message-passing capabilities of the original GNN are preserved after pruning. Overall, MPP unifies the strengths of GNN and MLP pruning paradigms, providing an efficient, scalable, and theoretically principled pruning solution for real-world graph learning applications.
+
+\section{tunedGNN: Architecture Optimization for Robustness}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/untrunedGNN.png}
+        \caption{\textbf{Classic GNN layer structure}}
+        \label{fig:untrunedGNN}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/trunedGNN.png}
+        \caption{\textbf{Tuned GNN layer structure}}
+        \label{fig:trunedGNN}
+    \end{subfigure}
+    \caption{\textbf{Comparison of Tuned and Classic GNN layer structures.} (a) The classic GNN layer stacks message-passing and activation modules, typically with fewer than 3 layers. (b) The tuned GNN layer incorporates residual connections, normalization, activation, and dropout, allowing for deeper architectures (up to 11 layers) and improved robustness to incomplete data.}
+    \label{fig:gnn-comparison}
+\end{figure}
+
+
+In addition to advanced feature imputation and pruning techniques, we further enhance the robustness and generalization of our framework by incorporating best-practice architectural adjustments, collectively referred to as \textbf{tunedGNN}[ref]. The tunedGNN approach, as proposed in previous work, systematically optimizes core design aspects of standard GNNs (such as GCN and GraphSAGE) to address their tendency toward degraded performance and instability under incomplete, noisy, or heterogeneous graph data.
+
+\subsection{Key Design Components}
+
+The tunedGNN strategy involves dynamically adjusting the number of GNN layers based on the characteristics of each dataset, achieving an optimal trade-off between receptive field expansion and the risk of over-smoothing. Normalization layers—such as Layer Normalization or Batch Normalization—are applied to stabilize feature distributions and improve convergence, especially under data missingness. Dropout and, where appropriate, residual connections are integrated to enhance generalization and robustness, mitigating the negative effects of missing features or edges. Additional minor modifications, such as skip connections or activation function tuning, are applied as needed to further stabilize message propagation.The complete algorithm is as follows:
+
+\begin{align}
+\text{Aggregate:}      && \mathbf{h}_i'      &= \mathrm{Aggregate}\left(\mathbf{h}_i, \{\mathbf{h}_j \mid j \in \mathcal{N}(i)\}\right) \\
+\text{Residual:}       && \mathbf{h}_i''     &= \mathbf{h}_i' + \mathrm{Linear}(\mathbf{h}_i) \\
+\text{Normalization:}  && \mathbf{h}_i'''     &= \mathrm{Norm}\left(\sigma\left(\mathbf{h}_i''\right)\right) \\
+\text{Dropout:}        && \mathbf{h}_i^{\mathrm{out}} &= \mathrm{Dropout}\left(\mathbf{h}_i'''\right)
+\end{align}
+
+
+\subsection{Practical Advantages}
+
+tunedGNN is highly modular and can be seamlessly incorporated into various GNN architectures with minimal changes. Extensive empirical evidence [ref] demonstrates that these straightforward modifications consistently improve performance and stability, particularly in the presence of high missingness, and often outperform more complex, specialized GNN variants.
+
+\subsection{Theoretical and Empirical Justification}
+
+The effectiveness of architectural tuning—including normalization, dropout, and residual connections—has been validated by numerous studies [ref], positioning tunedGNN as a theoretically grounded and empirically effective approach for robust graph learning.
+
+
+\section{Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD)}
+\label{sec:mp-krd}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{.//context//fig/mp-rkd.png}
+    \caption{\textbf{Workflow of the MP-RKD module in the PRISM framework.} The module performs reliability-aware knowledge distillation by using a teacher model to provide reliable label sampling for the isomorphic MLP, thereby enhancing model robustness and reducing inference cost.}
+
+    \label{fig:framework-mp_rkd}
+\end{figure}
+
+
+To further compress and accelerate GNN-based models while preserving expressive power under data incompleteness, we propose \textbf{Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD)}. Unlike conventional GNN-to-MLP distillation, which may lose structural information or suffer from unreliable knowledge transfer, MP-KRD performs knowledge distillation from a GNN teacher to its \emph{structurally isomorphic mirror-projected MLP student}, with a reliability-aware curriculum.
+
+\subsection{Mirror-projected MLP: Student–Teacher Isomorphism}
+A key aspect of MP-KRD is that the student model is \emph{not an arbitrary MLP}, but is constructed by the same mirror projection as in the MPP step, ensuring it is \emph{structurally isomorphic} to the GNN teacher (see Section$~\ref{sec:mpp}$). This design enables precise alignment between teacher and student outputs, as supported by recent studies on GNN-MLP embedding similarity[ref].
+
+\subsection{Reliability-aware Curriculum Sampling}
+To avoid overfitting the student to unreliable or noisy teacher predictions, we follow the curriculum learning philosophy of RKD[ref], dynamically quantifying the reliability of each knowledge point and using it to guide distillation.
+
+For each node $v_i$, the reliability score $\rho_i$ is defined as the invariance of the teacher GNN's output entropy to noise perturbations:
+\begin{equation}
+\rho_i = \frac{1}{\delta^2} \mathbb{E}_{\mathbf{X}' \sim \mathcal{N}(\mathbf{X}, \Sigma(\delta))} \left[ \left\| \mathcal{H}(Y'_i) - \mathcal{H}(Y_i) \right\|^2 \right]
+\end{equation}
+where $\mathcal{H}(Y_i)$ is the entropy of the GNN output for node $i$ on the original features, and $Y'_i$ is the output under Gaussian-perturbed features.
+
+The EMA-updated reliability at epoch $t$ is:
+\begin{equation}
+R_i^{(t)} = \lambda R_i^{(t-1)} + (1 - \lambda) \rho_i^{(t)}
+\end{equation}
+At each training step, the probability of sampling node $i$ is:
+\begin{equation}
+p(s_i \mid R_i^{(t)}, \alpha) = 1 - \left( \frac{R_i^{(t)}}{R_M^{(t)}} \right)^\alpha
+\end{equation}
+where $R_M^{(t)} = \max_j R_j^{(t)}$, and $\alpha$ is a curriculum hyperparameter (possibly updated by momentum[ref]). This process ensures that the student first learns from reliable samples, and progressively incorporates harder examples.
+
+\subsection{Distillation Objectives: Logit and Feature-based Losses}
+MP-KRD supports both logit-based and feature-based (representation) distillation for isomorphic student–teacher pairs.
+
+\textbf{Logit-based loss (RKD):} The Kullback–Leibler (KL) divergence between the softmaxed logit outputs of teacher and student:
+\begin{equation}
+\mathcal{L}_{\text{RKD}} = \frac{1}{n} \sum_{i=1}^{n}
+\mathrm{KL} \Big(
+    \log \mathrm{Softmax}(\mathbf{log}_i^{\text{student}}),\;
+    \log \mathrm{Softmax}(\mathbf{log}_i^{\text{teacher}})
+\Big)
+\end{equation}
+
+where $\mathbf{log}_i^{\text{student}}$ and $\mathbf{log}_i^{\text{teacher}}$ are the student and teacher logits for node $i$, $\log \mathrm{Softmax}(\cdot)$ denotes the log-probability, $\mathrm{KL}(\cdot, \cdot)$ is the Kullback--Leibler divergence, and $n$ is the batch size.
+
+\textbf{Feature-based loss (CWD):} Temperature-scaled KL-divergence between hidden representations[ref]:
+\begin{align}
+\mathcal{L}_{\text{CWD\_col}} &= \frac{1}{n} \sum_{i=1}^n \mathrm{KL}\left(
+  \log\mathrm{Softmax}\left(\frac{z_i^{\text{student}}}{T}\right),\;
+  \mathrm{Softmax}\left(\frac{z_i^{\text{teacher}}}{T}\right)
+\right) \cdot T^2 \\[1ex]
+\mathcal{L}_{\text{CWD\_row}} &= \frac{1}{n} \sum_{i=1}^n \mathrm{KL}\left(
+  \log\mathrm{Softmax}\left(\frac{\left(z_i^{\text{student}}\right)^{\top}}{T}\right),\;
+  \mathrm{Softmax}\left(\frac{\left(z_i^{\text{teacher}}\right)^{\top}}{T}\right)
+\right) \cdot T^2 \\[1ex]
+\mathcal{L}_{\text{CWD}} &= \frac{\mathcal{L}_{\text{CWD\_col}} + \mathcal{L}_{\text{CWD\_row}}}{2}
+\end{align}
+where $z_i^{\text{student}}$ and $z_i^{\text{teacher}}$ are hidden representations for node $i$, and $T$ is the temperature.
+
+The final loss is:
+\begin{equation}
+\mathcal{L}_{\text{MP-KRD}} = \mathcal{L}_{\text{CE}} + \lambda \cdot \mathcal{L}_{\text{RKD}} + \alpha \cdot \mathcal{L}_{\text{CWD}}
+\end{equation}
+where $\mathcal{L}_{\text{CE}}$ is the cross-entropy with ground-truth labels, and $\lambda$, $\alpha$ are weighting hyperparameters.
+
+\subsection{Deployment and Advantages}
+After distillation, only the sparse, mirror-projected MLP student is deployed for inference, achieving fast and memory-efficient predictions with minimal accuracy loss compared to the GNN teacher. By combining structural alignment, dynamic reliability-aware curriculum sampling, and joint logit/feature-based knowledge transfer, MP-KRD enables robust and efficient knowledge distillation, consistently outperforming standard GNN-to-MLP distillation baselines\cite{rkd}.
+
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

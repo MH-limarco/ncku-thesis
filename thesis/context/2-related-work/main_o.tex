@@ -1,0 +1,75 @@
+% ------------------------------------------------
+\StartChapter{Related Work}{chapter:related-work}
+% ------------------------------------------------
+
+\section{Feature Imputation in Graph Neural Networks}
+
+Feature imputation is a critical component for enhancing the robustness of Graph Neural Networks (GNNs) in the presence of missing node features—a common challenge in real-world graph-structured data. Existing approaches can be broadly classified into heuristic methods, learning-based models, and non-learning-based feature propagation techniques, each with distinct strengths and limitations.
+
+\subsection{Heuristic methods}
+
+Such as zero imputation, mean imputation, and label propagation (LP), remain popular due to their simplicity and computational efficiency. Zero and mean imputation directly replace missing entries with zero or the mean of observed values, respectively, serving as fundamental baselines. Label propagation leverages the graph structure to diffuse label information across nodes, enabling semi-supervised learning and feature inference even under substantial missingness [ref]. While these methods are efficient and stable under moderate missing rates, they often struggle to capture the complex feature distributions present in heterogeneous graphs.
+
+\subsection{Learning-based approaches}
+
+Including GCNMF, PaGNN, and sRMGCNN—employ deep neural network architectures to model and reconstruct missing features. For example, GCNMF integrates a Gaussian Mixture Model with a GCN framework to estimate missing values [ref]; PaGNN introduces partial aggregation mechanisms to facilitate learning on incomplete graphs [ref]; and sRMGCNN combines multi-graph convolutional operations with recurrent neural networks to capture spatiotemporal dependencies [ref]. Despite their theoretical expressiveness, these models are often limited by substantial computational and memory overhead, and their empirical performance may lag behind heuristic methods in high-missingness regimes.
+
+\subsection{Non-learning-based feature propagation methods}
+
+Most notably, Feature Propagation (FP) and Pseudo-Confidence Feature Imputation (PCFI)—have recently gained traction due to their effectiveness and robustness under extreme missing data scenarios. FP exploits the underlying graph structure to propagate known features throughout the network, maintaining high imputation quality with minimal computational cost [ref]. PCFI further advances this paradigm by introducing channel-wise pseudo-confidence, estimated via shortest-path distances to observed nodes, and employing a two-stage diffusion process to guide imputation. However, despite its robustness, PCFI suffers from high computational complexity, which can hinder its scalability to large graphs [ref].
+
+Building upon these insights, our proposed Approximation Pseudo-Confidence-based Feature Imputation (APCFI) method aims to strike a practical balance between the efficiency of propagation-based approaches and the stability offered by channel-wise confidence modeling, thereby enabling scalable and reliable feature imputation for large-scale, incomplete graphs.
+
+
+\section{Model Pruning in Graph Neural Networks}
+
+As Graph Neural Networks (GNNs) scale to handle increasingly large and complex graph datasets, model pruning has emerged as a crucial strategy to reduce computational and memory costs during both training and inference. Recent research on GNN pruning can be grouped into several major paradigms, each addressing different aspects of the sparsification problem.
+
+Unified GNN Sparsification (UGS) proposes simultaneous pruning of the adjacency matrix and model weights, generalizing the Lottery Ticket Hypothesis (LTH) to the graph domain. By identifying a sparse subnetwork and subgraph—referred to as a Graph Lottery Ticket (GLT)—UGS enables efficient training and inference while maintaining the performance of the original dense model [ref]. This unified approach has been validated across multiple GNN architectures and tasks, demonstrating its effectiveness in resource-constrained environments.
+
+Inductive Co-Pruning for GNNs (ICPG) further extends pruning to inductive settings by employing a generative probabilistic model to assign importance scores to both edges and network parameters [ref]. Through iterative co-pruning of graph structure and model weights, ICPG achieves high levels of sparsity and preserves accuracy in node and graph classification tasks. Its design is particularly suited for scenarios where new nodes or edges may appear during deployment.
+
+To address the limitations of these existing methods, we propose Mirror Projection Pruning (MPP)—a pre-training pruning strategy that efficiently estimates the importance of both model weights and graph structures before training commences. MPP leverages a mirror projection mechanism that maps the original GNN onto an isomorphic Multi-Layer Perceptron (MLP) space, enabling the seamless adoption of cross-domain pruning algorithms such as isomorphic pruning and Hessian-based methods [ref]. By identifying and retaining only the most critical components in advance, MPP significantly accelerates both the training and inference processes without sacrificing model expressiveness or predictive performance.
+
+This design not only bridges the gap between GNN-specific and general neural network pruning strategies, but also sets the stage for further synergistic integration with other modular components in our framework.
+
+
+
+
+\section{Knowledge Distillation for Graph Models}
+
+Knowledge distillation (KD) has become a pivotal technique for compressing and accelerating Graph Neural Networks (GNNs), enabling the deployment of lightweight yet high-performing models. In the context of graph data, KD approaches can be broadly categorized into GNN-to-GNN and GNN-to-MLP distillation.
+
+GNN-to-GNN distillation focuses on transferring knowledge from a large, often over-parameterized GNN teacher model to a smaller, more efficient GNN student. Representative works such as Local Structure Preserving (LSP) [ref], GNN Self-Distillation (GNN-SD) [ref], and TinyGNN [ref] emphasize various strategies to preserve local relational information or leverage self-ensemble predictions. Reliable Data Distillation (RDD) [ref] and Free-direction Knowledge Distillation (FreeKD) [ref] further extend these concepts, the latter enabling bidirectional knowledge transfer without the need for a pre-trained teacher.
+
+GNN-to-MLP distillation is an emerging trend motivated by the demand for fast inference in large-scale deployment. Models like Graph-less Neural Networks (GLNN) [ref] demonstrate that MLPs, once distilled from GNNs, can achieve surprisingly competitive performance even without access to graph structure at inference. The CPF framework [ref] integrates label propagation into MLPs to further enhance predictive accuracy. Recent advances such as Reliable Knowledge Distillation for MLPs (RKD-MLP) [ref] introduce noise-aware filtering of soft labels, while Full-Frequency GNN-to-MLP Distillation (FF-G2M) [ref] ensures the transfer of both low- and high-frequency information from GNNs. RKD [ref] quantifies the reliability of teacher knowledge based on invariance to noise, supporting a curriculum learning approach that guides the student from easy to hard samples.
+
+Collectively, these advancements in knowledge distillation for graph models highlight the potential of KD to bridge the gap between model performance and practical efficiency. By effectively transferring relational knowledge, KD methods empower the deployment of lightweight student models—such as MLPs—without significant loss in accuracy, paving the way for scalable and cost-effective graph learning.
+
+
+
+
+\section{Robustness and Architectural Optimization of GNNs under Incomplete Data}
+
+The practical deployment of Graph Neural Networks (GNNs) in real-world applications is often impeded by missing node features or incomplete graph structures. Robustness to such incomplete data has thus become a critical research focus. Several lines of work have addressed this issue from complementary perspectives, including specialized imputation strategies, normalization techniques, and architectural tuning.
+
+Specialized imputation methods such as GRAPE [ref] and Wasserstein GNN (WGNN) [ref] leverage advanced message passing, bipartite graph modeling, or optimal transport theory to infer missing features and preserve model accuracy. These approaches are particularly effective when missingness is systematic or highly structured.
+
+Normalization and regularization techniques also play a pivotal role in improving GNN stability under incomplete data. Traditional normalization layers, such as BatchNorm, are often insufficient for graph data due to the heterogeneous and non-Euclidean nature of graphs. Adaptive normalization methods like GRANOLA [ref] have been proposed to account for graph-specific neighborhood statistics, resulting in enhanced robustness and generalization.
+
+Architectural optimization, exemplified by the tunedGNN approach [ref], involves careful tuning of key model components such as the number of layers, residual connections, and the integration of LayerNorm or Dropout. These relatively simple modifications have been shown to significantly enhance model resilience, maintaining high classification accuracy even when a substantial portion of node features are missing.
+
+Collectively, these strategies demonstrate that robustness to incomplete data in GNNs is best achieved through a multifaceted approach. By combining robust imputation, graph-specific normalization, and thoughtful architectural design, recent studies have laid a strong foundation for the practical and trustworthy deployment of GNNs in imperfect environments. Our work adopts these best practices, integrating them into a unified and modular framework to further strengthen model reliability under challenging real-world conditions.
+
+
+\begin{landscape}
+\begin{table}[ht]
+    \centering
+    \input{./context/2-related-work/_method_comparison_table}
+\end{table}
+\end{landscape}
+
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

@@ -1,0 +1,37 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{L{0.21\textwidth}|ccc|cc}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed} & \textbf{\small Avg Accuracy} & \textbf{\small Avg.Rank} \\
+        \midrule
+        {\small GCN w Zero} &23.29 &16.70 &44.04 &28.01 & 7.7 \\
+        {\small GCN w FP} &\textbf{\textcolor{red}{68.55}} &44.72 &70.97 &61.41 {\footnotesize \textbf{33.4}$\uparrow$} & 4.3 \\
+        {\small \textbf{MPP-GCN(tuned) w APCFI(our)}} &\textbf{\textcolor{cyan}{70.46}} &50.62 &\textbf{\textcolor{red}{71.77}} &\textbf{\textcolor{cyan}{64.28}} {\footnotesize \textbf{36.3}$\uparrow$} & \textbf{\textcolor{red}{3.0}} \\
+        {\small \textbf{{\framework}-GCN(our)}} &60.94 &\textbf{\textcolor{green1}{52.22}} &\textbf{\textcolor{cyan}{72.35}} &61.84 {\footnotesize \textbf{33.8}$\uparrow$}& \textbf{\textcolor{cyan}{2.7}} \\
+        \midrule
+        {\small GraphSAGE w Zero} &34.14 &23.98 &41.28 &33.13 & 7.3 \\
+        {\small GraphSAGE w FP} &\textbf{\textcolor{green1}{71.24}} &\textbf{\textcolor{red}{50.77}} &\textbf{\textcolor{green1}{74.97}} & \textbf{\textcolor{green1}{65.66}} {\footnotesize \textbf{32.5}$\uparrow$} & \textbf{\textcolor{green1}{1.7}} \\
+        {\small \textbf{MPP-SAGE(tuned) w APCFI(our)}} &65.96 &50.57 &69.50 &\textbf{\textcolor{red}{62.01}} {\footnotesize \textbf{28.9}$\uparrow$} & 4.7 \\
+        {\small \textbf{{\framework}-SAGE(our)}} &59.56 &\textbf{\textcolor{cyan}{52.08}} &64.31 &58.65 {\footnotesize \textbf{25.5}$\uparrow$}& 4.7 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:table}
+    \caption{\textbf{Comparison under 99.5\% structural feature missing: vanilla GNN, MPP-Tuned, and {\framework} with common imputation methods on classic datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.}
+    \label{tab:structural_mr_toy}
+\end{table}
+\endgroup

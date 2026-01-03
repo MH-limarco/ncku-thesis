@@ -1,0 +1,30 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+\begin{tabular}{L{0.175\textwidth}|C{0.15\textwidth}C{0.2\textwidth}C{2cm}C{0.2\textwidth}L{0.6\textwidth}}
+
+\toprule
+Method & Performance Improvement & Maximum Missing Ratio & Inference Time & Total Training Time & Description \\
+\midrule
+Tuned GNN & $\uparrow$ & $-$ & $\uparrow$ & $\uparrow$ & Enhances GNN performance \\
+FP & $-$ & $90\%$ & $-$ & $\rightharpoonup$ & Efficient, robust approach for missing value imputation \\
+PCFI & $-$ & $99.5\%$ & $-$ & $\uparrow$ & Improving imputation quality with FP but increasing computational cost. \\
+TinyGNN & $\nearrow$ & $-$ & $\nearrow$ & $\uparrow$ & A method of GNN2GNN knowledge distillation. \\
+GLNN & $\nearrow$ & $-$ & $\downarrow$ & $\uparrow$ & Demonstrates that distilled MLPs can approach GNN-level performance while significantly reducing inference time. \\
+RKD & $\uparrow$ & $-$ & $\downarrow$ & $\uparrow$ & Introduces reliability-aware knowledge distillation 's GNN2MLP method. \\
+\textbf{{\framework}(Ours)} & $\uparrow$ & $99.5\%$ & $\downarrow$ & $\nearrow$ & Integrates robust imputation, architectural optimization, pruning, and knowledge distillation into a unified framework. \\
+
+\midrule
+\end{tabular}
+\caption{\textbf{Comparison of representative methods addressing incomplete graph learning and the proposed {\framework} framework.}
+The table summarizes each method’s improvements in GNN performance, robustness to missing data, imputation strategies, knowledge distillation, and efficiency. The proposed {\framework} integrates robust imputation, architectural optimization, pruning, and knowledge distillation into a unified framework, achieving the highest missing ratio tolerance (99.5\%). Symbol definitions: ``--''~No description,  ``$\rightarrow$''~No significant effect, ``$\uparrow$''~Significant increase, ``$\nearrow$''~Slightly rising, ``$\downarrow$''~Significant decline.
+}
+\endgroup

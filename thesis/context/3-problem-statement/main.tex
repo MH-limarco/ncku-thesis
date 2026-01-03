@@ -1,0 +1,88 @@
+% ------------------------------------------------
+\StartChapter{Problem Statement}{chapter:problem-statement}
+% ------------------------------------------------
+
+\section{Problem Background}
+
+Graph Neural Networks (GNNs) have achieved remarkable success in a wide range of real-world applications, such as social network analysis, recommender systems, and bioinformatics~\cite{gao2023survey, sharma2024survey, zhang2021graph}. However, their practical performance is highly contingent on the completeness of the input graph data~\cite{Zhang2024, Wu2021}.
+In realistic scenarios, graphs are frequently afflicted by missing node features or absent edges, stemming from factors like privacy constraints, sensor failures, or data collection limitations~\cite{jiang2021graph, adhikari2022comprehensive}.
+Such missing information fundamentally disrupts the message-passing mechanisms central to GNN architectures, often resulting in suboptimal node representations and diminished performance on downstream tasks.
+
+Missingness in graph data typically manifests in two primary forms:
+
+
+\begin{itemize}
+    \item Uniform missingness refers to randomly distributed missing features throughout the graph, often caused by unpredictable device malfunctions or sporadic data loss.
+\end{itemize}
+
+\begin{itemize}
+    \item Structural missingness arises when missing data is concentrated within specific subgraphs or clusters of nodes, commonly due to systematic issues such as privacy restrictions or selective sampling policies.
+\end{itemize}
+
+In addition to data incompleteness, the scaling of GNNs to large and complex graphs introduces substantial challenges in terms of training cost (computational resources and time) and inference cost (the need for extensive neighborhood aggregation at test time)~\cite{lin2020pagraph, zheng2020distdgl}.
+Existing approaches tend to focus on addressing a single aspect—such as feature imputation, model pruning, or architectural tuning—without providing a unified and modular solution that jointly addresses the intertwined challenges of robustness, efficiency, and scalability under incomplete data.
+
+To overcome these practical challenges, a comprehensive framework capable of robust feature imputation, resource-efficient training, and cost-effective inference is essential for deploying GNNs in real-world settings characterized by high levels of missingness and limited computational resources~\cite{xue2023sugar}.
+
+
+\section{Notations}
+
+
+\input{./context/3-problem-statement/notations_table}
+
+
+\section{Formal Statement}
+
+Given a graph $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathbf{A}, \mathbf{X})$ with node feature matrix $\mathbf{X} \in \mathbb{R}^{N \times F}$ and a missingness mask $\mathbf{M} \in \{0,1\}^{N \times F}$, the objective of this work is to develop a unified framework that addresses the following intertwined challenges in graph representation learning under incomplete data:
+
+
+\begin{enumerate}
+    \item Robust Feature Imputation:
+
+    Given that a subset of features $x_{i,d}$ is missing (i.e., $\mathbf{M}_{i,d} = 0$), the goal is to recover the missing values $\hat{x}_{i,d}$ such that the imputed feature matrix $\hat{\mathbf{X}}$ maximizes the downstream task performance (e.g., node classification accuracy) under varying missingness patterns (uniform/structural).
+
+    \newpage
+    \item Resource-Efficient Training:
+
+    Let $C_{\text{train}}(f)$ denote the computational cost (e.g. Time or FLOPs) of training a GNN-based model $f$ on $\mathcal{G}$. The challenge is to minimize $C_{\text{train}}(f)$ without sacrificing the performance on incomplete graphs, ideally through effective pruning or architectural optimization.
+
+    \item Cost-Effective Inference:
+
+    Define $C_{\text{infer}}(f)$ as the inference cost for deploying $f$ on new, potentially incomplete graphs. The target is to minimize $C_{\text{infer}}(f)$ (e.g., reducing message passing or memory overhead) while ensuring high accuracy and reliability, possibly by leveraging knowledge distillation or graph-to-MLP transformation~\cite{GLNN, KRD, lu2024adagmlp}.
+
+\end{enumerate}
+
+The joint optimization problem underlying our framework can be formalized as follows:
+
+\begin{align*}
+&\max_{f,\, \hat{\mathbf{X}},\, \hat{\mathcal{A}}} \quad \text{TaskAcc}\big(f(\hat{\mathbf{X}},\, \hat{\mathcal{A}})\big) \\
+&\min_{f} \quad C_{\text{train}}(f) \\
+&\min_{f} \quad C_{\text{infer}}(f) \\
+&\text{s.t.}\
+    \begin{cases}
+        \mathbf{M}_{i,d} = 0 \implies \hat{x}_{i,d} \text{ is imputed} \\
+        \text{MissingRate}(\mathbf{M}) \leq \rho_X \\
+        \text{MissingRate}(\mathbf{A}) \leq \rho_A
+    \end{cases}
+\end{align*}
+
+This joint optimization objective seeks to maximize the downstream task accuracy, $\text{TaskAcc}\big(f(\hat{\mathbf{X}},\, \hat{\mathcal{A}})\big)$, by simultaneously optimizing the model $f$, the imputed feature matrix $\hat{\mathbf{X}}$, and the imputed adjacency matrix $\hat{\mathcal{A}}$. The framework also aims to minimize both the training cost $C_{\text{train}}(f)$ and the inference cost $C_{\text{infer}}(f)$, ensuring efficiency during both model development and deployment.
+
+Subject to the following constraints:
+- Every missing feature entry $(i, d)$, indicated by $\mathbf{M}_{i,d} = 0$, must be properly imputed in $\hat{x}_{i,d}$.
+- The missing rate of the feature matrix, $\text{MissingRate}(\mathbf{M})$, must not exceed the predefined threshold $\rho_X$.
+- The missing rate of the adjacency matrix, $\text{MissingRate}(\mathcal{A})$, must not exceed the threshold $\rho_A$.
+
+Here, $\mathbf{M}$ denotes the feature mask indicating missing entries, while $\mathcal{A}$ and $\hat{\mathcal{A}}$ represent the original and imputed adjacency matrices, respectively. The parameters $\rho_X$ and $\rho_A$ define the maximum tolerable missing rates for features and edges, guaranteeing robust model performance under severe data incompleteness.
+In our experiments, we set $\rho_X = 99.5\%$ for feature imputation in APCFI, and evaluate iPaD under edge missing rates up to $\rho_A = 90\%$, demonstrating the framework's strong resilience to extremely high levels of missing data.
+
+\section{Summary}
+
+The central research question addressed in this work is as follows: \textbf{\small How can a modular and unified learning framework be designed to achieve robust prediction performance under severe data incompleteness, while simultaneously reducing training and inference costs for practical deployment?}
+
+This framework tackles the joint objective by seamlessly integrating feature imputation, pruning, architectural tuning, and knowledge distillation into a single pipeline.
+Such integration not only enhances robustness and efficiency, but also provides a principled foundation for the subsequent methodological developments presented in this paper.
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

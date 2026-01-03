@@ -1,0 +1,324 @@
+% ------------------------------------------------
+\StartSection{虛擬程式碼(Pseudocode)}{chapter:how-to:write:pseudocode}
+% ------------------------------------------------
+
+Pseudocode在資訊類的paper是很常見, 雖然這東西冷門, 但是有它的存在意義.
+如果不想用Pseudocode來寫, 可考慮使用Table來做 (考慮章節 \RefTo{subsection:how-to:write:table:api}).
+
+而由於需要寫Pseudocode的人, 理論上都100\%會寫程式, 所以有關這邊會直接使用例子(基本的function, if-elseif-else, while, return, switch-case)來說明, 靠例子應該就能寫出你所要的Pseudocode.
+
+唯一注意的是需要使用:\\
+'\verb|\Statex|'來斷一行空行\\
+'\verb|\State|'來斷一行以寫新code在後面
+
+% ------------------------------------------------
+
+\newpage
+例子1:
+\begin{algorithm}
+  \caption{My algorithm (function A)}
+  \label{algo:functionA}
+
+  \begin{algorithmic}[1]
+    \Function{function\_name\_a}{arg1, arg2}
+      \If{conditionA}
+        \State ...
+      \ElsIf{conditionB}
+        \State ...
+      \Else
+        \State ...
+      \EndIf
+      \Statex
+      \If{condition1}
+        \State ...
+      \Else
+        \If{condition2}
+          \State ...
+        \Else
+          \State ...
+        \EndIf
+      \EndIf
+      \Statex
+      \For{condition}
+        \State ...
+      \EndFor
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\newpage
+針對function A (Algorithm \RefTo{algo:functionA}), 它的LaTex寫法為:\\
+
+\begin{DescriptionFrame}
+  \begin{verbatim}
+\begin{algorithm}
+  \caption{My algorithm (function A)}
+  \label{algo:functionA}
+
+  \begin{algorithmic}[1]
+    \Function{function\_name\_a}{arg1, arg2}
+      \If{conditionA}
+        \State ...
+      \ElsIf{conditionB}
+        \State ...
+      \Else
+        \State ...
+      \EndIf
+      \Statex
+      \If{condition1}
+        \State ...
+      \Else
+        \If{condition2}
+          \State ...
+        \Else
+          \State ...
+        \EndIf
+      \EndIf
+      \Statex
+      \For{condition}
+        \State ...
+      \EndFor
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+  \end{verbatim}
+\end{DescriptionFrame}
+
+% ------------------------------------------------
+
+\newpage
+例子2:
+\begin{algorithm}
+  \caption{My algorithm (function B)}
+  \label{algo:functionB}
+
+  \begin{algorithmic}[1]
+    \Function{functionNameB}{}
+      \State ...
+
+We propose Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD), a curriculum-based knowledge distillation framework designed to robustly transfer expressive power from a teacher GNN to a pruned, mirror-projected MLP student. MP-KRD dynamically selects distillation samples according to empirical learning difficulty and student-teacher agreement, ensuring both efficiency and robustness under incomplete data scenarios.
+
+We propose Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD), a curriculum-based knowledge distillation framework designed to robustly transfer expressive power from a teacher GNN to a pruned, mirror-projected MLP student. MP-KRD dynamically selects distillation samples according to empirical learning difficulty and student-teacher agreement, ensuring both efficiency and robustness under incomplete data scenarios.
+
+Motivation
+
+Motivation
+
+\newcommand{\modelname}{A-Model}
+
+\newcommand{\modelname}{A-Model}
+
+\newcommand{\modelname}{A-Model}
+
+\newcommand{\modelname}{A-Model}
+
+\newcommand{\modelname}{A-Model}
+
+\newcommand{\modelname}{A-Model}
+
+The workflow of our proposed {\framework} framework, as depicted in Figure~\ref{fig:framework_overview}, is a systematic pipeline that transforms a graph with incomplete features into a lightweight, robust, and fast inference model. The process unfolds across three distinct yet interconnected stages:
+
+\begin{enumerate}
+    \item \textbf{Stage 1: Robust Data Imputation with APCFI.}
+    The process begins with an input graph whose feature matrix, $\mathbf{X}$, contains missing values. To ensure a high-quality foundation for subsequent learning, the graph is first passed through our \textbf{APCFI} (Approximate Pseudo-Confidence Feature Imputation) module. As shown in the blue dashed box, APCFI leverages graph diffusion and an approximate shortest distance estimation (ASDE) to generate pseudo-confidence scores, which guide a feature propagation process. The output of this stage is a fully recovered feature matrix, $\hat{\mathbf{X}}$, where missing entries have been robustly imputed.
+
+    \item \textbf{Stage 2: Synergistic Teacher and Student Generation via MPP.}
+    The second stage masterfully prepares both the teacher and student models in a sequential, highly efficient process driven by our \textbf{MPP} (Mirror Projection Pruning) module. The workflow is as follows:
+    \begin{enumerate}
+        \item \textbf{Proxy Pre-training and Pruning:} We begin with our powerful GNN architecture (e.g., \textbf{tunedGNN}) and project it to its isomorphic MP-MLP. This proxy MLP is then pre-trained and pruned on the target dataset. This efficient step determines the optimal sparse structure and directly yields our lightweight \textbf{Student Model} (the "Pruned MP-MLP").
+        \item \textbf{Teacher Architecture Definition:} The pruned structure from the student model is then inversely projected back to the original GNN architecture. This creates the final, optimized architecture for our teacher: the "Pruned GNN".
+        \item \textbf{Teacher Training:} Finally, this "Pruned GNN" is fully trained on the recovered data $(\hat{\mathbf{X}}, \mathcal{G})$ to become our final, high-performance \textbf{Teacher Model}.
+    \end{enumerate}
+    This synergistic process is a core innovation of our framework: the lightweight student's architecture is defined in the same efficient step that determines the optimized architecture for the powerful teacher, all \textit{before} the main, computationally expensive GNN training commences.
+
+    \item \textbf{Stage 3: Knowledge Distillation with MP-KRD.}
+    In the final stage, we orchestrate the knowledge transfer. As illustrated in the red dashed box, our \textbf{MP-KRD} (Mirror Projection Knowledge-inspired Reliable Distillation) module takes the high-performance "Pruned GNN" Teacher and the lightweight "Pruned MP-MLP" Student. It employs a reliability-aware sampling strategy to distill the rich, relational knowledge from the teacher into the student. The final output of the entire {\framework} pipeline is this pruned, distilled MLP student—a model that is highly efficient, robust against incomplete data, and ready for fast deployment in real-world applications.
+\end{enumerate}
+
+This chapter presents a comprehensive empirical evaluation of our proposed {\framework} framework. Our goal is to systematically validate the claims made in the preceding chapters by answering a series of targeted research questions. We begin by detailing the experimental setup, followed by a series of experiments designed to: (1) validate the performance and efficiency of our \textbf{APCFI} module; (2) establish the baseline performance of {\framework} against state-of-the-art models on complete data; (3) quantify the efficiency gains from our \textbf{MPP} module; (4) stress-test the framework's robustness under extreme data corruption; and finally, (5) dissect the framework through extensive ablation studies to prove the synergistic contribution of each component.
+
+% ----------------------------------------------------------------------
+\section{Experimental Setup}
+\label{sec:exp_setup}
+
+To ensure a thorough and reproducible evaluation, this section details the datasets, compared methods, training configurations, and evaluation protocols used throughout this chapter.
+
+\subsection{Datasets}
+We conduct experiments on eight widely-used node classification benchmark datasets, including three classic small-scale datasets -- \textbf{Cora, CiteSeer, and PubMed} -- as well as five medium-to-large-scale datasets: \textbf{Computers, Photo, WikiCS, CS, and Physics}. Key statistics for each dataset are summarized in Table~\ref{tab:datasets}. All tasks are formulated as semi-supervised node classification, and performance is primarily evaluated by classification accuracy.
+% \input{table_for_datasets} % 您的數據集表格
+
+This chapter presents a comprehensive empirical evaluation of our proposed {\framework} framework. Our goal is to systematically validate the claims made in the preceding chapters by answering a series of targeted research questions. We begin by detailing the experimental setup, followed by a series of experiments designed to: (1) validate the performance and efficiency of our \textbf{APCFI} module; (2) establish the baseline performance of {\framework} against state-of-the-art models on complete data; (3) quantify the efficiency gains from our \textbf{MPP} module; (4) stress-test the framework's robustness under extreme data corruption; and finally, (5) dissect the framework through extensive ablation studies to prove the synergistic contribution of each component.
+
+% ----------------------------------------------------------------------
+\section{Experimental Setup}
+\label{sec:exp_setup}
+
+To ensure a thorough and reproducible evaluation, this section details the datasets, compared methods, training configurations, and evaluation protocols used throughout this chapter.
+
+\subsection{Datasets}
+We conduct experiments on eight widely-used node classification benchmark datasets, including three classic small-scale datasets -- \textbf{Cora, CiteSeer, and PubMed} -- as well as five medium-to-large-scale datasets: \textbf{Computers, Photo, WikiCS, CS, and Physics}. Key statistics for each dataset are summarized in Table~\ref{tab:datasets}. All tasks are formulated as semi-supervised node classification, and performance is primarily evaluated by classification accuracy.
+% \input{table_for_datasets} % 您的數據集表格
+
+This chapter presents a comprehensive empirical evaluation of our proposed {\framework} framework. Our goal is to systematically validate the claims made in the preceding chapters by answering a series of targeted research questions. We begin by detailing the experimental setup, followed by a series of experiments designed to: (1) validate the performance and efficiency of our \textbf{APCFI} module; (2) establish the baseline performance of {\framework} against state-of-the-art models on complete data; (3) quantify the efficiency gains from our \textbf{MPP} module; (4) stress-test the framework's robustness under extreme data corruption; and finally, (5) dissect the framework through extensive ablation studies to prove the synergistic contribution of each component.
+
+% ----------------------------------------------------------------------
+\section{Experimental Setup}
+\label{sec:exp_setup}
+
+To ensure a thorough and reproducible evaluation, this section details the datasets, compared methods, training configurations, and evaluation protocols used throughout this chapter.
+
+\subsection{Datasets}
+We conduct experiments on eight widely-used node classification benchmark datasets, including three classic small-scale datasets -- \textbf{Cora, CiteSeer, and PubMed} -- as well as five medium-to-large-scale datasets: \textbf{Computers, Photo, WikiCS, CS, and Physics}. Key statistics for each dataset are summarized in Table~\ref{tab:datasets}. All tasks are formulated as semi-supervised node classification, and performance is primarily evaluated by classification accuracy.
+% \input{table_for_datasets} % 您的數據集表格
+
+\subsection{Compared Methods}
+Our experiments involve a diverse range of baseline and state-of-the-art models. For imputation-specific analysis, we compare our proposed \textbf{APCFI} against \textbf{Zero, LP, GCNMF, PaGNN, FP, and PCFI}. For end-to-end model performance, we benchmark {\framework} against strong baselines including a \textbf{tunedGNN}, as well as recent SOTA models such as \textbf{GraphGPS, NAGphormer, GOAT, and Polymormer}.
+
+\subsection{Training Details}
+All models are trained using the Adam optimizer with learning rates tuned via Optuna for fair comparison. We employ a full-batch training scheme. The number of training epochs and other critical hyperparameters follow the settings from the TunedGNN framework to ensure consistency. To guarantee reproducibility, all experiments are run with fixed random seeds on a workstation equipped with an NVIDIA RTX 4090 GPU, an AMD Ryzen 9 7900 CPU, and 64 GB of DDR5 RAM.
+
+\subsection{Missing Data and Dataset Split Protocols}
+To evaluate robustness, we introduce missing data under two primary settings: \textbf{feature missing} (both uniform and structural patterns at rates up to 99.5\%) and \textbf{edge missing} (random masking at rates up to 90\%). To ensure fair comparison with prior work, we adopt the specific dataset splits from the original PCFI paper for imputation experiments and the splits from the TunedGNN benchmark for all other experiments.
+
+% ----------------------------------------------------------------------
+
+\section{Experimental Setup}
+
+\section{Experimental Setup}
+
+% This follows the previously revised Section 5.1
+
+\section{Validating APCFI: A Superior Balance of Accuracy and Efficiency}
+\label{sec:exp_apcfi}
+
+This section aims to validate our first claim: that \textbf{APCFI} resolves the critical performance-efficiency trade-off in existing feature imputation methods. We seek to answer two questions: (1) Is APCFI significantly more efficient than its high-performance predecessor, PCFI? (2) Does this efficiency gain come at the cost of imputation accuracy?
+
+\subsection{Efficiency Comparison}
+The results presented in Table~\ref{tab:imputation-runtime} answer the first question with a resounding yes. Across all benchmark datasets, APCFI is only marginally slower than the simple FP baseline. Crucially, compared to the high-performance PCFI, APCFI demonstrates a massive efficiency improvement, running on average \textbf{over 200 times faster}. This result confirms that APCFI is a practically viable imputation solution for large-scale graphs where PCFI's complexity would be prohibitive.
+\input{./context/5-experiment/2-imputation_runtime}
+
+\subsection{Accuracy under High Missing Rates}
+Table~\ref{tab:imputation} addresses the second question, showing that this immense efficiency gain does not compromise performance. Under both structural and uniform missingness scenarios with up to 99.5\% of features absent, APCFI's accuracy is statistically on par with the much slower PCFI. It consistently and significantly outperforms other baselines, especially in high-missingness regimes.
+
+These results confirm our hypothesis: \textbf{APCFI successfully combines the high accuracy of PCFI with the high efficiency of FP}, establishing it as a powerful and practical foundation for the data imputation stage of our framework.
+\begin{landscape}
+    \begin{table}[ht]
+     \centering
+    \input{./context/5-experiment/3-imputation}
+    \end{table}
+\end{landscape}
+
+
+% ----------------------------------------------------------------------
+\section{Baseline Performance in a Complete Data Scenario}
+\label{sec:exp_sota}
+
+Before stress-testing our framework's robustness, we must first establish its credibility. This section answers: How does the end-to-end {\framework} framework perform against leading GNN models under standard, complete-data conditions?
+
+[cite_start]As shown in Tables~\ref{tab:sota_toy} and~\ref{tab:sota}, while some specialized SOTA models achieve peak performance on specific datasets, the variants of our {\framework} framework consistently rank at or near the top across all benchmarks[cite: 1]. [cite_start]This highlights the strength and generalization capability of our `tunedGNN` backbone and overall design[cite: 1]. The results clearly establish that {\framework} is a top-tier GNN framework whose robust design does not sacrifice—and in fact often enhances—performance on standard benchmarks, setting a strong baseline for the subsequent robustness tests.
+\input{./context/5-experiment/11-sota_toy}
+\input{./context/5-experiment/12-sota}
+
+% ----------------------------------------------------------------------
+
+\section{Validating MPP: Quantifying Gains in Training and Inference Efficiency}
+\label{sec:exp_mpp}
+
+This section validates the core efficiency claims of our MPP module. We investigate: (1) How effectively does MPP reduce the computational costs of training and inference? (2) What is the resulting trade-off with model accuracy?
+
+[cite_start]As demonstrated in Table~\ref{tab:efficency_float_inference}, applying MPP yields dramatic resource savings[cite: 1]. [cite_start]Increasing the prune rate to 0.9 reduces GFLOPs by over 10x and inference time by over 5x[cite: 1]. [cite_start]Furthermore, Figure~\ref{fig:pruned_total_training_time} shows this efficiency gain extends to the entire training pipeline, with total training time decreasing by over 3x[cite: 1].
+
+[cite_start]Crucially, Figure~\ref{fig:physics_prune_acc} reveals a clear \textbf{"efficiency sweet spot."} At a prune rate of 0.6--0.7, computational costs are drastically reduced with a negligible impact on accuracy (less than 0.5\% drop)[cite: 1]. This validates MPP as a highly effective and practical strategy for creating efficient yet powerful GNNs.
+\input{./context/5-experiment/10-efficiency_float_inference}
+% ... (Figures for this section) ...
+
+
+\section{Validating MPP: Quantifying Gains in Training and Inference Efficiency}
+\label{sec:exp_mpp}
+
+This section validates the core efficiency claims of our MPP module. We investigate: (1) How effectively does MPP reduce the computational costs of training and inference? (2) What is the resulting trade-off with model accuracy?
+
+[cite_start]As demonstrated in Table~\ref{tab:efficency_float_inference}, applying MPP yields dramatic resource savings[cite: 1]. [cite_start]Increasing the prune rate to 0.9 reduces GFLOPs by over 10x and inference time by over 5x[cite: 1]. [cite_start]Furthermore, Figure~\ref{fig:pruned_total_training_time} shows this efficiency gain extends to the entire training pipeline, with total training time decreasing by over 3x[cite: 1].
+
+[cite_start]Crucially, Figure~\ref{fig:physics_prune_acc} reveals a clear \textbf{"efficiency sweet spot."} At a prune rate of 0.6--0.7, computational costs are drastically reduced with a negligible impact on accuracy (less than 0.5\% drop)[cite: 1]. This validates MPP as a highly effective and practical strategy for creating efficient yet powerful GNNs.
+\input{./context/5-experiment/10-efficiency_float_inference}
+% ... (Figures for this section) ...
+
+
+Performance under Uniform Feature Missing.
+
+Performance under Uniform Feature Missing.
+
+Joint Learning with Imputation, Pruning, and Distillation for Robust
+ Lightweight Graph Neural Networks
+ Some code here
+      \State ...
+      \Statex
+      \While{condition3}
+        \State ...
+      \EndWhile
+      \Statex
+      \Repeat
+        \State ...
+      \Until{condition3}
+      \Statex
+      \Switch{condition4}
+        \Case{condition5} ... \Break \EndCase
+        \Statex
+        \Case{condition6}
+          \State ...
+          \State \Break
+        \EndCase
+        \Statex
+        \Default
+          \State ...
+        \EndDefault
+      \EndSwitch
+
+      \Statex\State \Return retValue
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\newpage
+針對function B (Algorithm \RefTo{algo:functionB}), 它的LaTex寫法為:\\
+
+\begin{DescriptionFrame}
+  \begin{verbatim}
+\begin{algorithm}
+  \caption{My algorithm (function B)}
+  \label{algo:functionB}
+
+  \begin{algorithmic}[1]
+    \Function{functionNameB}{}
+      \State ...
+      \State Some code here
+      \State ...
+      \Statex
+      \While{condition3}
+        \State ...
+      \EndWhile
+      \Statex
+      \Repeat
+        \State ...
+      \Until{condition3}
+      \Statex
+      \Switch{condition4}
+        \Case{condition5} ... \Break \EndCase
+        \Statex
+        \Case{condition6}
+          \State ...
+          \State \Break
+        \EndCase
+        \Statex
+        \Default
+          \State ...
+        \EndDefault
+      \EndSwitch
+
+      \Statex\State \Return retValue
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+  \end{verbatim}
+\end{DescriptionFrame}

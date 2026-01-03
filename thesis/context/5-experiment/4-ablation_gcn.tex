@@ -1,0 +1,51 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{4}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{table}[ht]
+ \centering
+\begin{tabular}{C{0.05\textwidth}C{0.05\textwidth}C{0.05\textwidth}|C{0.125\textwidth}C{0.135\textwidth}C{0.12\textwidth}|C{0.125\textwidth}C{0.13\textwidth}C{0.12\textwidth}}
+\hline
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multicolumn{3}{c|}{\textbf{\small Photo}} &
+\multicolumn{3}{c}{\textbf{\small CS}} \\
+\cline{4-9} \textbf{\small Tuned}& \textbf{\small MPP} & \textbf{\small MP-KRD} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\footnotesize Training Speed (epoch/s)$\uparrow$} &  \textbf{\footnotesize Inference Time (ms)$\downarrow$} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\footnotesize Training Speed (epoch/s)$\uparrow$} &  \textbf{\footnotesize Inference Time (ms)$\downarrow$} \\
+\midrule
+\textcolor{red}{{\footnotesize \XSolidBrush}} & \textcolor{red}{{\footnotesize \XSolidBrush}}  & \textcolor{red}{{\footnotesize \XSolidBrush}}  & {\small 91.43} {\footnotesize ± 0.10}&	{\small 118.2} {\footnotesize ± 6.33} &	{\small 3.09} {\footnotesize ± 0.04}&	{\small 90.28} {\footnotesize ± 0.12}&	{\small 45.1} {\footnotesize ± 0.18} &	{\small 8.45} {\footnotesize ± 0.41} \\
+
+\textcolor{green1}{{\footnotesize \CheckmarkBold}}& \textcolor{red}{{\footnotesize \XSolidBrush}}  & \textcolor{red}{{\footnotesize \XSolidBrush}}  & \textcolor{red}{\textbf{{\small 95.97} {\footnotesize ± 0.30}}}&	\textbf{{\small 28.8} {\footnotesize ± 2.24}} &	\textbf{{\small 12.69} {\footnotesize ± 1.37}}& \textcolor{red}{\textbf{{\small 95.89} {\footnotesize ± 0.14}}}&	\textbf{{\small 23.3} {\footnotesize ± 0.42}}&	\textbf{{\small 16.55} {\footnotesize ± 1.00}} \\
+
+\textcolor{red}{{\footnotesize \XSolidBrush}}& \textcolor{green1}{{\footnotesize \CheckmarkBold}}  & \textcolor{red}{{\footnotesize \XSolidBrush}}  & {\small 90.69} {\footnotesize ± 0.17}&	{\small 166.1} {\footnotesize ± 0.69}&	{\small 2.47} {\footnotesize ± 0.20}	& {\small 90.04} {\footnotesize ± 0.06}&	{\small 77.5} {\footnotesize ± 0.27}&	{\small 5.50} {\footnotesize ± 0.17} \\
+
+\textcolor{red}{{\footnotesize \XSolidBrush}}& \textcolor{red}{{\footnotesize \XSolidBrush}}   & \textcolor{green1}{{\footnotesize \CheckmarkBold}}  & {\small 93.94} {\footnotesize ± 0.39}&	{\small 165.5} {\footnotesize ± 6.33*} &	{\small 1.27} {\footnotesize ± 0.25}	& {\small 93.89} {\footnotesize ± 0.13}&	{\small 52.1} {\footnotesize ± 0.18*}&	{\small 6.03} {\footnotesize ± 0.61} \\
+
+\textcolor{green1}{{\footnotesize \CheckmarkBold}}&  \textcolor{green1}{{\footnotesize \CheckmarkBold}} & \textcolor{red}{{\footnotesize \XSolidBrush}}  & {\small 95.92} {\footnotesize ± 0.12}&	{\small 47.2} {\footnotesize ± 1.15} &	{\small 7.52} {\footnotesize ± 0.54}	& {\small 96.01} {\footnotesize ± 0.08}&	{\small 47.7} {\footnotesize ± 0.20} &	{\small 8.16} {\footnotesize ± 1.01} \\
+
+\textcolor{green1}{{\footnotesize \CheckmarkBold}}&  \textcolor{red}{{\footnotesize \XSolidBrush}} & \textcolor{green1}{{\footnotesize \CheckmarkBold}}  & \textcolor{cyan}{\textbf{{\small 96.21} {\footnotesize ± 0.23}}}&	\textbf{{\small 89.0} {\footnotesize ± 2.24*}}&	\textbf{{\small 2.59} {\footnotesize ± 0.34}}	& \textcolor{green1}{\textbf{{\small 96.34} {\footnotesize ± 0.12}}}&	\textbf{{\small 27.2} {\footnotesize ± 0.42*}}&	\textbf{{\small 10.36} {\footnotesize ± 0.58}} \\
+
+\textcolor{red}{{\footnotesize \XSolidBrush}}&  \textcolor{green1}{{\footnotesize \CheckmarkBold}} & \textcolor{green1}{{\footnotesize \CheckmarkBold}}  & {\small 93.46} {\footnotesize ± 0.31}&	{\small 165.9} {\footnotesize ± 0.69*}&	{\small 1.20} {\footnotesize ± 0.07}	& {\small 93.79} {\footnotesize ± 0.15}&	{\small 75.9} {\footnotesize ± 0.27*}&	{\small 3.95} {\footnotesize ± 0.34} \\
+
+\textcolor{green1}{{\footnotesize \CheckmarkBold}}&  \textcolor{green1}{{\footnotesize \CheckmarkBold}} & \textcolor{green1}{{\footnotesize \CheckmarkBold}}& \textcolor{green1}{\textbf{{\small 96.23} {\footnotesize ± 0.22}}} &	\textbf{{\small 118.4} {\footnotesize ± 1.15*}}&	\textbf{{\small 1.65} {\footnotesize ± 0.07}}	& \textcolor{cyan}{\textbf{{\small 96.14} {\footnotesize ± 0.10}}}&	\textbf{{\small 48.9} {\footnotesize ± 0.20*}}&	\textbf{{\small 6.34} {\footnotesize ± 0.47}} \\
+
+\bottomrule
+\end{tabular}
+\caption{
+\textbf{Ablation study of tuned, MPP, and MP-KRD modules on the Photo and CS datasets (GCN Model).} The table reports accuracy, training speed (epoch/s), and inference time (ms) for different combinations of modules. When MP-KRD is used, (*) indicates the speed measured during knowledge distillation.
+}
+\label{tab:ablation_gcn}
+\end{table}
+\endgroup

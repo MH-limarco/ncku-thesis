@@ -1,0 +1,120 @@
+% ------------------------------------------------
+\StartChapter{Related Work}{chapter:related-work}
+% ------------------------------------------------
+
+This chapter reviews prior research in areas crucial to our work.
+Methods for handling incomplete data in GNNs, particularly feature imputation, are first reviewed.
+The subsequent sections discuss the landscape of GNN model pruning and knowledge distillation.
+For each area, the limitations of existing approaches are analyzed to precisely situate the contributions of the proposed iPaD framework.
+
+% --- Section 2.1: Feature Imputation ---
+\section{Feature Imputation in Graph Neural Networks}
+\label{sec:imputation}
+Feature imputation is a critical component for enhancing the robustness of Graph Neural Networks (GNNs) in the presence of missing node features---a common challenge in real-world graph-structured data~\cite{you2020handling, FP, GCNMF, PCFI}.
+Existing approaches can be broadly classified into heuristic methods, learning-based models, and feature propagation techniques.
+
+
+Heuristic methods, such as Zero, Mean, or Label Propagation (LP) Imputation, are computationally efficient but often fail to capture the complex feature distributions present in graphs~\cite{LP}, leading to suboptimal performance.
+Learning-based approaches, including GCNMF and PaGNN, employ deep neural network architectures to model and reconstruct missing features~\cite{PaGNN, GCNMF}.
+Despite their theoretical expressiveness, these models can be limited by substantial computational overhead and may not outperform simpler methods in high-missingness regimes.
+
+
+More recently, non-learning-based feature propagation methods have gained traction.
+Feature Propagation (FP) exploits the underlying graph structure to propagate known features, offering a strong balance of performance and efficiency~\cite{FP}.
+Pseudo-Confidence Feature Imputation (PCFI) further advances this by introducing channel-wise pseudo-confidence to guide a two-stage diffusion process,
+achieving state-of-the-art imputation quality~\cite{PCFI}.
+However, this high performance comes at a significant cost: PCFI's channel-by-channel calculation leads to extremely high computational complexity, hindering its scalability to large graphs.
+This reveals a critical trade-off between imputation performance and computational efficiency in the current literature.
+
+
+To address this efficiency-accuracy trade-off,
+\textbf{APCFI} is introduced to retain the high imputation quality of confidence-aware methods such as PCFI, while drastically reducing computational burden via Approximate Shortest Distance Estimation (ASDE) and Dynamic Joint Channel Diffusion (DJCD).
+
+Table~\ref{tab:method_imputaion} provides a clear comparison of these imputation strategies.
+
+
+\begin{table}[htbp]
+    \centering
+    \input{./context/2-related-work/_imputation_comparison_table}
+\end{table}
+
+% --- Section 2.2: Model Pruning ---
+\section{Model Pruning in Graph Neural Networks}
+\label{sec:pruning}
+As GNNs scale to handle increasingly large and complex graphs, model pruning has emerged as a crucial strategy to reduce computational costs during both training and inference.
+Existing GNN pruning paradigms include channel pruning (e.g., GCNP~\cite{GCNP}), hardware-aware optimization (e.g., PruneGNN~\cite{pruneGNN}),
+and methods that simultaneously prune graph structures and model weights during training (e.g., UGS~\cite{UGS}, ICPG~\cite{ICPG}).
+
+
+However, these methods often suffer from two major limitations.
+First, they typically entangle the pruning process with the GNN training pipeline,
+introducing significant computational overhead and complex, model-specific algorithmic designs that can substantially \textbf{increase the total training cost}.
+Second, they are often proposed as specific, monolithic algorithms, lacking the \textbf{scalability and flexibility} to incorporate a wide array of mature pruning techniques from other domains, such as the MLP literature.
+
+To overcome these challenges of high overhead and low flexibility, we introduce \textbf{MPP} (Mirror Projection Pruning).
+Instead of being another monolithic algorithm, MPP proposes a new \textbf{proxy-based pruning paradigm}.
+Its core idea is to decouple pruning from GNN training by projecting the GNN to an isomorphic MLP, where mature, off-the-shelf pruning algorithms can be applied efficiently \textit{before} the main training commences.
+The advantages of this paradigm are summarized in Table~\ref{tab:method_pruning}.
+
+\begin{table}[htbp]
+    \centering
+    \input{./context/2-related-work/_pruning_comparison_table}
+\end{table}
+
+% --- Section 2.3: Knowledge Distillation ---
+\section{Knowledge Distillation for Graph Models}
+\label{sec:distillation}
+Knowledge distillation (KD) is a pivotal technique for compressing GNNs, enabling the deployment of lightweight yet high-performing models.
+In the context of graph data, KD approaches can be broadly categorized into GNN-to-GNN and GNN-to-MLP distillation.
+
+
+GNN-to-GNN methods, such as LSP~\cite{LSP} and TinyGNN~\cite{TinyGNN}, focus on transferring knowledge from a large GNN teacher to a smaller GNN student.
+While effective, they do not eliminate the graph dependency at inference time. To achieve maximum inference speed, GNN-to-MLP distillation has emerged as a promising direction. Methods like GLNN~\cite{GLNN} show that an MLP student, once distilled, can achieve competitive performance without access to the graph structure. More advanced techniques like KRD~\cite{KRD} introduce reliability-aware curriculum learning to handle potentially noisy knowledge from the teacher.
+
+
+Despite these advances, existing GNN-to-MLP methods exhibit several gaps.
+First, the student MLP is typically an \textbf{arbitrary MLP}, lacking any intrinsic structural alignment with the GNN teacher. Second, the distillation process is designed \textbf{independently of any model pruning stage}, missing a key opportunity for synergistic optimization. Finally, while some methods address teacher noise, a more robust, pipeline-aware approach is needed.
+
+
+Our proposed \textbf{MP-KRD} (Mirror Projection Knowledge-inspired Reliable Distillation) is designed specifically to fill these gaps.
+It creates a powerful synergy by using the \textbf{structurally-aligned, isomorphic MLP} generated by our MPP stage as the student. This ensures architectural consistency and maximizes the effectiveness of the knowledge transfer, which is further enhanced by a reliability-aware curriculum.
+The unique characteristics of MP-KRD are summarized in Table~\ref{tab:method_kd}.
+
+\begin{table}[htbp]
+    \centering
+    \input{./context/2-related-work/_kd_comparison_table}
+\end{table}
+
+
+% --- Section 2.4: SOTA GNNs ---
+\section{High-Level Comparison of SOTA GNNs}
+\label{sec:rw_sota_comparison}
+
+Beyond the specific areas of imputation and compression, it is also instructive to compare our approach against the broader landscape of recent state-of-the-art (SOTA) GNNs, particularly concerning the trade-off between performance and efficiency.
+
+Table~\ref{tab:method_sota} provides a qualitative comparison of prominent SOTA models. As the table illustrates, while most recent Transformer-based models like GraphGPS\cite{GPS} and NAGphormer\cite{NAG} achieve high predictive performance, they often do so at the cost of low computational efficiency. Our \textbf{MP-TunedGNN} (the teacher model in our framework), by integrating the MPP module, stands out by maintaining high performance while significantly boosting efficiency compared to both its ``TunedGNN'' backbone and other SOTA models. This highlights a key contribution of our work in addressing the prevalent performance-efficiency trade-off in modern GNN architectures.
+\begin{table}[htbp]
+    \centering
+    \input{./context/2-related-work/_sota_comparison_table}
+\end{table}
+
+% --- Section 2.5: Chapter Summary ---
+\section{Chapter Summary}
+\label{sec:rw_summary}
+In this chapter, we have reviewed prior art across feature imputation, model pruning, and knowledge distillation, identifying the key limitations of existing methods in each domain.
+To synthesize these findings and crystallize the motivation for our work, we present a holistic comparison in Table~\ref{tab:holistic_comparison}.
+This table evaluates a wide spectrum of methods against the three core challenges identified in this thesis: handling data \textbf{Completeness}, achieving high \textbf{Training Efficiency}, and ensuring model \textbf{Scalability} for inference.
+
+The table clearly illustrates the``siloed'' nature of existing research.
+Imputation methods like PCFI excel at ``Completeness'' but do not address efficiency.
+High-performance SOTA models like GraphGPS~\cite{GPS} have low ``Training Efficiency'' and ``Scalability''.
+Distillation methods like KRD offer ``Scalability'' but do not handle data ``Completeness''.
+
+\begin{table}[htbp]
+    \centering
+    \input{./context/2-related-work/_method_comparison_table}
+\end{table}
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

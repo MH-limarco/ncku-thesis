@@ -1,0 +1,46 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.3} % 增加行高，表格更寬鬆
+
+\begin{tabular}{L{0.25\textwidth}|C{0.2\textwidth}C{0.125\textwidth}C{0.125\textwidth}}
+
+\toprule
+\textbf{\small Method} & \textbf{\small Completeness} & \textbf{\small {Training Efficiency}} & \textbf{\small {Scalability}}\\
+\midrule
+PaGNN~\cite{PaGNN} &  {\CheckmarkBold} & - & - \\
+GCNMF~\cite{GCNMF} &  {\CheckmarkBold} & - & - \\
+FP~\cite{FP} & {\CheckmarkBold} & - & - \\
+PCFI~\cite{PCFI} & {\CheckmarkBold} & - & - \\
+\midrule
+GraphGPS~\cite{GPS} & - & {\CheckmarkBold} & -\\
+NAGphormer~\cite{NAG} & - & {\CheckmarkBold} & -\\
+Exphormer~\cite{Exphormer} & - & {\CheckmarkBold} & -\\
+GOAT~\cite{GOAT} & - & {\CheckmarkBold} & -\\
+NodeFormer~\cite{NodeFormer} &  - & {\CheckmarkBold} & -\\
+SGFormer~\cite{SGFormer} &  - & {\CheckmarkBold} & -\\
+Polynormer~\cite{Polynormer} &  - & {\CheckmarkBold} & -\\
+TunedGNN~\cite{tunedGNN} &  {\CheckmarkBold}* & {\CheckmarkBold} & -\\
+\midrule
+
+LSP~\cite{LSP} & - & - & {\CheckmarkBold}\\
+GNN-SD~\cite{GNNSD} & - & - & -\\
+TinyGNN~\cite{TinyGNN} & - & - & {\CheckmarkBold}\\
+GLNN~\cite{GLNN} & - & - & {\CheckmarkBold}\\
+KRD~\cite{KRD} & - & - & {\CheckmarkBold}\\
+
+\midrule
+\textbf{iPaD(Ours)} & {\CheckmarkBold} & {\CheckmarkBold} & {\CheckmarkBold}\\
+
+\midrule
+\end{tabular}
+\caption{\textbf{Holistic comparison of representative methods across the core challenges of Completeness, Training Efficiency, and Scalability.} Our proposed {\framework} is the only framework designed to excel in all three aspects.}
+\label{tab:holistic_comparison}
+\endgroup

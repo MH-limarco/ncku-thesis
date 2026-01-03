@@ -1,0 +1,28 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{tabular}{L{0.175\textwidth}|C{0.2\textwidth}C{0.125\textwidth}L{0.375\textwidth}}
+
+\toprule
+\textbf{\small Method} & \textbf{\small Total Training Cost} & \textbf{\small Scalability} & \textbf{\small Key Idea} \\
+\midrule
+GCNP~\cite{GCNP} & \uparrow & {\XSolidBrush} & Using a novel LASSO regression formulation to prune model channels \\
+PruneGNN~\cite{pruneGNN} &  \uparrow & {\XSolidBrush} & Introduces novel SIMD-aware kernels and accelerate structured GNN pruning on parallel hardware \\
+UGS~\cite{UGS} & \uparrow & {\XSolidBrush} & Prune graphs and weights simultaneously during training for specific ensemble algorithms \\
+ICPG~\cite{ICPG} & \uparrow & {\XSolidBrush} & Iterative co-pruning during training for specific ensemble algorithms \\
+\textbf{MPP(Ours)} & \downarrow & {\CheckmarkBold} & A GNN proxy pruning framework that off-the-shelf MLP-compatible algorithms \\
+
+\midrule
+\end{tabular}
+\caption{\textbf{Comparison of representative GNN pruning methods.}}
+\label{tab:method_pruning}
+\endgroup

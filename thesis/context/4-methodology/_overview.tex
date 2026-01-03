@@ -1,0 +1,30 @@
+\section{Framework Overview}
+\label{sec:overview}
+
+The workflow of our proposed {\framework} framework, as depicted in Figure~\ref{fig:framework_overview}, is a systematic pipeline that transforms a graph with incomplete features into a lightweight, robust, and fast inference model. The process unfolds across three distinct yet interconnected stages:
+
+\begin{enumerate}
+    \item \textbf{Stage 1: Robust Data Imputation with APCFI.}
+    The process begins with an input graph whose feature matrix, $\mathbf{X}$, contains missing values. To ensure a high-quality foundation for subsequent learning, the graph is first passed through our \textbf{APCFI} (Approximate Pseudo-Confidence Feature Imputation) module.
+    APCFI leverages graph diffusion and an \textbf{ASDE} to generate pseudo-confidence scores, which guide a feature propagation process.
+    The output of this stage is a fully recovered feature matrix, $\hat{\mathbf{X}}$, where missing entries have been robustly imputed.
+
+    \item \textbf{Stage 2: Synergistic Teacher and Student Generation via MPP.}
+    The second stage efficiently prepares both the teacher and student models in a sequential, highly efficient process driven by our \textbf{MPP} module. The workflow is as follows:
+    \begin{enumerate}
+        \item \textbf{Proxy Pre-training and Pruning:} \\
+        We begin with our powerful GNN architecture (e.g., \textbf{TunedGNN}) and project it to its isomorphic MP-MLP. This proxy MLP is then pre-trained and pruned on the target dataset.
+        This efficient step determines the optimal sparse structure and directly yields our lightweight \textbf{Student Model} (the ``Pruned MP-MLP").
+        \item \textbf{Teacher Architecture Definition:} \\
+        The pruned structure from the student model is then inversely projected back to the original GNN architecture. This creates the final, optimized architecture for our teacher: the ``Pruned GNN".
+
+    \end{enumerate}
+    This synergistic process is a core innovation of our framework: the lightweight student's architecture is defined in the same efficient step that determines the optimized architecture for the powerful teacher, all before the main, computationally expensive GNN training commences.
+    \item \textbf{Stage 3: Teacher Training.} \\ The ``Pruned GNN'' architecture, defined in the previous stage, is fully trained on the imputed dataset $(\hat{\mathbf{X}}, \mathcal{G})$ produced by the APCFI module. This dedicated training phase enables the pruned model to achieve strong predictive performance while maintaining high computational efficiency. The resulting model, referred to as the \textbf{Teacher Model}, serves as a robust and lightweight source of knowledge for the subsequent distillation process. By leveraging both the optimized sparse architecture and the high-quality imputed features, the teacher model is well-suited to guide the training of the student model in the final stage.
+    \newpage
+    \item \textbf{Stage 4: Knowledge Distillation with MP-KRD.}
+    In the final stage, knowledge transfer is orchestrated.
+    The \textbf{MP-KRD} module takes the high-performance ``Pruned GNN'' Teacher and the lightweight ``Pruned MP-MLP'' Student.
+    It employs a reliability-aware sampling strategy to distill the rich, relational knowledge from the teacher into the student.
+    The final output of the entire {\framework} pipeline is this pruned, distilled MLP student—a model that is highly efficient, robust against incomplete data, and ready for fast deployment in real-world applications.
+\end{enumerate}

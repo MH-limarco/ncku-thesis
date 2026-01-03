@@ -1,0 +1,64 @@
+\section{TunedGNN: Architecture Optimization for Robustness}
+\label{sec:tunedgnn}
+
+Having established a method to obtain a complete and robust feature matrix, the next logical step is to define a GNN architecture capable of effectively learning from this data.
+While standard GNNs like GCN or GraphSAGE are widely used, they are often architecturally shallow and can be sensitive to the subtle noise and imperfections that may remain even in imputed data.
+To build a powerful and reliable ``teacher" model for our framework, a more resilient foundational architecture is required.
+
+
+
+To this end, the \textbf{TunedGNN} is introduced as the backbone model.
+It is important to note that \textbf{TunedGNN} is not a novel architecture proposed in this thesis.
+Rather, it is a systematic application of several well-established, state-of-the-art architectural best practices from recent GNN research~\cite{tunedGNN}.
+The goal is to construct a model with enhanced stability, expressiveness, and, most critically, robustness against data perturbations.
+As illustrated in Figure~\ref{fig:tunedgnn_comparison}, the \textbf{TunedGNN} structure is significantly deeper and more complex than classic GNN layers.
+
+
+\subsection{Key Design Components}
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{.45\linewidth}
+        \centering
+        \includegraphics[height=0.6\linewidth]{.//context//fig/untrunedGNN.png}
+        \caption{\textbf{Classic GNN layer structure}}
+        \label{fig:untrunedGNN}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{.45\linewidth}
+        \centering
+        \includegraphics[height=0.9\linewidth]{.//context//fig/trunedGNN.png}
+        \caption{\textbf{Tuned GNN layer structure}}
+        \label{fig:tunedgnn_comparison}
+    \end{subfigure}
+    \caption{\textbf{Comparison of Tuned and Classic GNN layer structures.} (a) The classic GNN layer stacks message-passing and activation modules, typically with fewer than 3 layers. (b) The tuned GNN layer incorporates residual connections, normalization, activation, and dropout, allowing for deeper architectures (up to 11 layers) and improved robustness to incomplete data.}
+    \label{fig:gnn-comparison}
+\end{figure}
+
+The key design components systematically integrated into our \textbf{TunedGNN} backbone are as follows:
+\newpage
+\begin{itemize}
+    \item \textbf{Deeper Layer Stacking:} \\A deeper architecture (e.g., up to 11 layers in the experiments) is employed compared to traditional shallow GNNs. This allows for a larger receptive field, enabling the model to capture more complex, higher-order relational patterns within the graph, while carefully managing the risk of over-smoothing through the components below.
+
+    \item \textbf{Normalization (e.g., LayerNorm):} \\ Each GNN layer is followed by a normalization layer, typically LayerNorm, to stabilize the distribution of intermediate feature representations. This practice is crucial for promoting faster, more stable convergence and is particularly effective in mitigating the impact of noise in high-missingness scenarios.
+
+    \item \textbf{Residual Connections:} \\ To enable effective training of such a deep architecture, skip (or residual) connections are added between layers.
+    As shown in Figure~\ref{fig:tunedgnn_comparison}, the output of the message-passing block is added to the original input before subsequent transformations.
+    This mitigates the vanishing gradient problem and ensures a smoother gradient flow throughout the network.
+
+    \item \textbf{Dropout:} \\ Dropout layers are applied after each non-linearity or normalization layer.
+    This acts as a powerful regularization technique, enhancing the model's generalization capabilities and improving its robustness to perturbations in both node and edge features.
+\end{itemize}
+
+
+
+The overall layer structure for \textbf{TunedGNN} can be formally summarized by the following sequence of operations for each layer, transforming the input representation $h_i$ to the output $h_{i+1}$:
+\begin{align}
+    h'_{i} &= \text{Aggregate}(h_{i}, \{h_{j} \mid j \in \mathcal{N}(i)\}) \label{eq:tuned_agg} \\
+    h''_{i} &= h'_{i} + \text{Linear}(h_{i}) \label{eq:tuned_res} \\
+    h'''_{i} &= \text{Norm}(\sigma(h''_{i})) \label{eq:tuned_norm} \\
+    h_{i+1} &= \text{Dropout}(h'''_{i}) \label{eq:tuned_dropout}
+\end{align}
+
+where Equation~\ref{eq:tuned_agg} represents the core message-passing step, and Equation~\ref{eq:tuned_res} represents the residual connection.
+
+In conclusion, the \textbf{TunedGNN} architecture provides a highly performant and robust foundation for our framework. However, this power and resilience come at the cost of a large parameter count and significant computational complexity. This directly motivates the need for the next module in our pipeline: an effective and efficient pruning strategy to make this powerful model practical for real-world training and deployment.

@@ -1,0 +1,35 @@
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+\begin{table}[htbp]
+\begin{tabular}{L{0.3\textwidth} L{0.6\textwidth}}
+\hline
+Notation & \centerline{Description}\\
+\hline
+$\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathbf{A})$ & An undirected graph, where $\mathcal{V}$ is the set of nodes, $\mathcal{E}$ is the set of edges, and $\mathbf{A}$ is the adjacency matrix. \\
+
+$\mathcal{V} = \{ v_i \}_{i=1}^N$ & The set of $N$ nodes in the graph. \\
+
+$\mathbf{A} \in \{0, 1\}^{N \times N}$ & The adjacency matrix; $\mathbf{A}_{ij} = 1$ if there is an edge between $v_i$ and $v_j$, otherwise $0$. \\
+
+$\mathbf{X} = [x_{i,d}] \in \mathbb{R}^{N \times F}$ & Node feature matrix; $x_{i,d}$ is the $d$-th feature of node $v_i$. \\
+
+$\mathcal{N}(v_i)$ & The set of neighbors of node $v_i$. \\
+
+$\mathbf{M} \in \{0,1\}^{N \times F}$ & Mask matrix: $1$ for observed features, $0$ for missing. \\
+$V_k^{(d)}$ & Set of nodes with known $d$-th feature (source nodes). \\
+
+$V_u^{(d)}$ & Set of nodes with unknown $d$-th feature (missing nodes). \\
+
+$x^{(d)} = \begin{bmatrix} x_k^{(d)} \\ x_u^{(d)} \end{bmatrix}$ & Graph signal for $d$-th channel, partitioned into known and unknown. \\
+
+$\mathbf{A}^{(d)} = \begin{bmatrix} \mathbf{A}_{kk}^{(d)} & \mathbf{A}_{ku}^{(d)} \\ \mathbf{A}_{uk}^{(d)} & \mathbf{A}_{uu}^{(d)} \end{bmatrix}$ & Adjacency matrix reordered for known/unknown nodes for channel $d$. \\
+
+$\hat{\mathbf{X}} = [\hat{x}_{i,d}]$ & The recovered (imputed) feature matrix. \\
+        
+\hline
+
+\end{tabular}
+
+\caption{\textbf{Summary of main notations used throughout the paper.} This table lists the symbols, definitions, and descriptions for graph structure, feature matrices, and related variables.}
+
+\end{table}

@@ -1,0 +1,26 @@
+\definecolor{green1}{RGB}{40,180,90}
+\newcommand{\algstep}[1]{\Statex\State{\textcolor{green1}{\textbf{#1}}}}
+
+\begin{algorithm}[H]
+    \caption{MPP Proxy Pruning Pseudocode}
+    \label{algo:mpp}
+    \begin{algorithmic}[1]
+        \Function{mpp\_prune}{gnn\_model, feature, label}
+        \algstep{Step 1: Remove message-passing and project to MLP proxy}
+        \State \texttt{mp\_mlp = project\_to\_mlp(gnn\_model)}
+        \algstep{Step 2: Pre-train the proxy model}
+        \State \texttt{mp\_mlp.train(feature, label)}
+        \algstep{Step 3: Prune the proxy MLP}
+        \State \texttt{pruning\_mask = prune\_mlp(mp\_mlp, method="LAMP")}
+        \algstep{Step 4: Generate the student model}
+        \State \texttt{pruned\_mlp = apply\_mask(mp\_mlp, pruning\_mask)}
+        \algstep{Step 5: Parameter and Mask Transfer back to original GNN (teacher model)}
+        \State \texttt{pruned\_gnn = apply\_mask(gnn\_model, pruning\_mask)}
+        \algstep{Return the pruned GNN and pruned MLP}
+        \State \Return \texttt{pruned\_gnn, pruned\_mlp}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\endgroup
+
+

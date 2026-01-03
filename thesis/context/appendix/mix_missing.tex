@@ -1,0 +1,19 @@
+\StartChapter{Complex Missing Conditions}{appendix:ipad_complex_missing}
+
+\section{Performance under Combined Feature and Edge Missing Conditions}
+To further assess the robustness of the proposed \textbf{\framework} framework, an additional experiment was conducted under complex extreme missing data scenarios, where both node features and graph structure were heavily corrupted. Specifically, the evaluation considered a uniform feature missing rate of 99.5\% in conjunction with an edge missing rate of 60\%, simulating an exceptionally challenging setting for graph learning. Results are summarized in Table~\ref{tab:mix_missing_u}.
+
+Across four benchmark datasets (Computers, Photo, WikiCS, Physics), \textbf{\framework}-enhanced models were compared against their corresponding SOTA counterparts augmented with standard feature propagation (FP) preprocessing. While the accuracy gap between iPaD and FP-based baselines was reduced under such severe dual corruption, \textit{iPaD} still maintained competitive performance levels, particularly for the GCN backbone, which achieved an average accuracy of 78.43\% compared to 79.41\% for its FP-based variant.
+
+It is worth noting that, unlike the single \textbf{edge missing} scenario reported in Section~\ref{sec:exp_edge_missing} where the \textbf{\framework} architecture consistently outperformed TunedGNN, such a performance advantage was not observed under the combined corruption setting. The primary reason lies in the fact that \textbf{edge missing} also degrades the performance of the imputer module, which in turn limits the student model’s ability to identify and exploit reliable feature signals to replace suboptimal teacher model information. As a result, the overall performance becomes more dependent on the teacher model’s reliability, leading to a reduced advantage for the distilled student.
+
+These findings suggest that, although extreme simultaneous feature and edge removal significantly challenges all evaluated methods, \textbf{\framework} retains a comparable level of predictive capability while preserving its inherent efficiency advantages. This reinforces the framework’s applicability in scenarios where graph data is subject to multi-faceted degradation.
+
+\input{./context/appendix/ipad_complex_missing_u}
+
+
+
+
+
+
+

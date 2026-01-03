@@ -1,0 +1,27 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.1} % 增加行高，表格更寬鬆
+
+
+
+
+    \begin{tabular}{L{0.15\textwidth}|C{0.15\textwidth}L{0.75\textwidth}|C{0.14\textwidth}}
+    \textbf{\small Technical Component} & \textbf{\small Source} & \textbf{\small Innovation Description} & \textbf{\small Innovation Category}\\
+    \midrule
+    \textbf{\small Feature-Propagation} & \cite{FP} & {\small Adopted standard feature propagation as the fundamental step for missing feature estimation} & Adoption\\
+    \textbf{\small Pseudo-Confidence} & \cite{PCFI} & {\small Adopted existing pseudo-confidence calculation method as the basis for feature reliability estimation} & Adoption \\
+    \textbf{\small Parallel Diffusion} & \textbf{Our} & {\small Designed a parallel diffusion strategy to perform feature estimation simultaneously on multiple subgraph channels, improving computational efficiency and stability for large-scale graphs} & Original Innovation\\
+
+    \bottomrule
+    \end{tabular}
+    \caption{\textbf{\small Imputation Module (APCFI) Innovations.} Detailed breakdown of the APCFI components, specifying the source of each technique and categorizing the level of innovation.}
+    \label{tab:apcfi_innovations}

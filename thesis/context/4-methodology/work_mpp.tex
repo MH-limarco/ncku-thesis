@@ -1,0 +1,28 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.1} % 增加行高，表格更寬鬆
+
+
+
+
+    \begin{tabular}{L{0.15\textwidth}|C{0.15\textwidth}L{0.75\textwidth}|C{0.14\textwidth}}
+    \textbf{\small Technical Component} & \textbf{\small Source} & \textbf{\small Innovation Description} & \textbf{\small Innovation Category}\\
+    \midrule
+    \textbf{\small Parameter Transfer} & \cite{MLPinit} & {\small Redesigned parameter transfer to adapt projection and weight mapping for GNNs, improving stability after pruning} & Adoption\\
+    \textbf{\small Channel Pruning} & \cite{fang2023depgraph, lee2020layer} & {\small Adopted conventional channel pruning strategies without modifying the original computation and selection criteria} & Adoption \\
+    \textbf{\small Proxy Pruning} & \textbf{Our} & {\small Proposed replacing GNN with a low-cost MLP as a proxy model during pruning. The proxy significantly accelerates pruning and GNN training, while enhancing the effectiveness of knowledge distillation by providing a lightweight yet structure-aware student model} & Original Innovation\\
+
+    \bottomrule
+    \end{tabular}
+    \caption{\textbf{\small Pruning Module (MPP) Innovations.} Comprehensive summary of pruning techniques, including parameter transfer, channel pruning, and the proposed proxy pruning strategy using MLP to accelerate GNN training and enhance KD.}
+    \label{tab:mpp_innovations}

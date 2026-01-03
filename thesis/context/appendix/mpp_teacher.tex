@@ -1,0 +1,13 @@
+\StartChapter{Effect of MPP Pruning on Teacher Models}{appendix:mpp_teacher}
+
+\section{Rationale for Applying MPP Pruning to Teacher Models}
+To improve the efficiency of the distillation process, the teacher models are first pruned using the proposed Multi-Path Proxy (MPP) strategy prior to knowledge transfer.
+While parameter pruning inherently reduces the model size, an appropriately configured MPP preserves the most informative channels and removes redundant computations, thereby maintaining the predictive capability of the teacher.
+As shown in Table~\ref{tab:pruning_comparison_medium}, the pruned teacher models exhibit negligible or no accuracy degradation compared to their unpruned counterparts, while delivering substantial improvements in training speed (e.g., from 19.35 to 54.49 epoch/s for TunedGCN).
+Furthermore, the MPP strategy is not limited to a specific backbone and can be effectively extended to various classic or state-of-the-art (SOTA) architectures, such as SGFormer, Polynormer, GCN, and GraphSAGE, consistently providing both training efficiency gains and competiti
+
+\input{./context/appendix/pruning_comparison_medium}
+
+
+
+

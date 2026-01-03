@@ -1,0 +1,37 @@
+
+
+% 定義顏色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{L{0.21\textwidth}|ccc|cc}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed} & \textbf{\small Avg Accuracy} & \textbf{\small Avg.Rank} \\
+        \midrule
+        {\small GCN w Zero} & 53.04 & 17.84 & 44.05 & 38.31 & 7.3 \\
+        {\small GCN w FP} & 75.07 & \textbf{\textcolor{cyan}{54.43}} & 72.69 & 67.40 {\footnotesize \textbf{29.1}$\uparrow$} & \textbf{\textcolor{red}{3.7}} \\
+        {\small \textbf{MPP-GCN(tuned) w APCFI(our)}} & \textbf{\textcolor{cyan}{75.22}} & 51.20 & \textbf{\textcolor{red}{75.22}} & 67.21 {\footnotesize \textbf{28.9}$\uparrow$} & \textbf{\textcolor{red}{3.7}} \\
+        {\small \textbf{{\framework}-GCN(our)}} & \textbf{\textcolor{red}{75.21}} & 53.96 & 72.10 & 67.09 {\footnotesize \textbf{28.8}$\uparrow$} & 4.3 \\
+        \midrule
+
+        {\small GraphSAGE w Zero} & 46.72 & 28.90 & 39.92 & 38.51 & 7.7 \\
+        {\small GraphSAGE w FP} & \textbf{\textcolor{green1}{75.75}} & \textbf{\textcolor{red}{54.39}} & 74.06 & \textbf{\textcolor{red}{68.07}} {\footnotesize \textbf{29.6}$\uparrow$} & \textbf{\textcolor{cyan}{2.7}} \\
+        {\small \textbf{MPP-SAGE(tuned) w APCFI(our)}} & 74.90 & \textbf{\textcolor{green1}{54.72}} & \textbf{\textcolor{green1}{76.47}} & \textbf{\textcolor{green1}{68.70}} {\footnotesize \textbf{30.2}$\uparrow$} & \textbf{\textcolor{green1}{2.3}} \\
+        {\small \textbf{{\framework}-SAGE(our)}} & 74.52 & 53.94 & \textbf{\textcolor{cyan}{76.19}} & \textbf{\textcolor{cyan}{68.00}} {\footnotesize \textbf{29.7}$\uparrow$} & 4.3 \\
+        \bottomrule
+
+    \end{tabular}
+    \caption{\textbf{Comparison under 99.5\% uniform feature missing: vanilla GNN, MPP-Tuned, and {\framework} with common imputation methods on classic datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.
+}
+    \label{tab:uniform_mr_toy}
+\end{table}
+\endgroup

@@ -1,0 +1,35 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.5} % 增加行高，表格更寬鬆
+
+\begin{table}[htbp]
+    \centering
+\begin{tabular}{L{0.2\textwidth} C{0.1\textwidth}C{0.1\textwidth}C{0.1\textwidth}C{0.1\textwidth}C{0.2\textwidth}}
+\hline
+\textbf{\small Datasets} & \textbf{\small nodes} & \textbf{\small edges} & \textbf{\small Features} & \textbf{\small Classes} & \textbf{\small Metric} \\
+\hline
+Cora~\cite{sen2008collective} & 2,708 & 5,278 & 1,433 & 7 & Accuracy \\
+CiteSeer~\cite{sen2008collective} & 3,327 & 4,522 & 3,703 & 6 &  Accuracy \\
+PubMed~\cite{sen2008collective} & 19,717 &  44,324 & 500 & 3 &  Accuracy \\
+Computers & 13,752 & 245,861 & 767 & 1 &  Accuracy \\
+Photo & 7,650 &  119,081 & 745 & 8 &  Accuracy \\
+WikiCS~\cite{mernyei2020wiki} & 11,701 & 216,123 & 300 & 6 &  Accuracy \\
+CS & 18,333 & 81,894 &  6,805 & 15 &  Accuracy \\
+Physics & 34,493 &  247,962 & 8,415 & 5 &  Accuracy \\
+\hline
+\end{tabular}
+
+\caption{\textbf{Statistics of Benchmark Datasets Used in Node Classification Tasks.} The table summarizes the number of nodes, edges, features, classes, and the evaluation metric for each dataset.}
+\label{tab:datasets}
+\end{table}
+\endgroup

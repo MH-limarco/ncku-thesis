@@ -1,0 +1,39 @@
+
+
+% 定義顏色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.15}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{L{0.19\textwidth}|ccc|C{0.125\textwidth}C{0.05\textwidth}}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Cora} & \textbf{\small CiteSeer} & \textbf{\small PubMed} & \textbf{\small Accuracy}\\
+        \midrule
+        {\footnotesize GCN w Zero} & 23.29 {\scriptsize ± 0.78} & 16.70 {\scriptsize ± 1.99} & 44.04 {\scriptsize ± 0.94} & 23.29\\
+        {\footnotesize GCN w FP} & 68.55 {\scriptsize ± 0.21} & 44.72 {\scriptsize ± 0.46} & 70.97 {\scriptsize ± 0.22} & 68.55 {\footnotesize \textbf{45.3}$\uparrow$}\\
+        {\footnotesize TunedGCN w FP} & 74.46 {\scriptsize ± 0.47} & 51.61 {\scriptsize ± 1.29} & 72.68 {\scriptsize ± 0.74} & 74.46 {\footnotesize \textbf{51.2}$\uparrow$}\\
+        {\footnotesize \textbf{MPP-TunedGCN w APCFI(our)}} & \textbf{\textcolor{green1}{75.55 {\scriptsize ± 0.80}}} & 51.20 {\scriptsize ± 0.73} & \textbf{\textcolor{red}{75.22 {\scriptsize ± 0.68}}} & \textbf{\textcolor{green1}{75.22}} {\footnotesize \textbf{51.9}$\uparrow$}\\
+        {\footnotesize \textbf{{\framework}-GCN(our)}} & \textbf{\textcolor{cyan}{75.21 {\scriptsize ± 0.36}}} & \textbf{\textcolor{cyan}{53.96 {\scriptsize ± 1.27}}} & 72.10 {\scriptsize ± 4.90} & \textbf{\textcolor{cyan}{75.21}} {\footnotesize \textbf{51.9}$\uparrow$}\\
+        
+        \midrule
+        {\footnotesize GraphSAGE w Zero} & 34.14 {\scriptsize ± 1.34} & 23.98 {\scriptsize ± 1.05} & 39.92 {\scriptsize ± 2.66} & 34.14\\
+        {\footnotesize GraphSAGE w FP}  & 71.24 {\scriptsize ± 0.47} & 50.77 {\scriptsize ± 0.85} & 74.87 {\scriptsize ± 0.68} & 71.24 {\footnotesize \textbf{37.1}$\uparrow$}\\
+        {\footnotesize TunedSAGE w FP} & 74.10 {\scriptsize ± 1.56} & 53.30 {\scriptsize ± 0.85} & 73.26 {\scriptsize ± 1.05} & 74.10 {\footnotesize \textbf{40.0}$\uparrow$}\\
+        {\footnotesize \textbf{MPP-TunedSAGE w APCFI(our)}} & \textbf{\textcolor{red}{74.90 {\scriptsize ± 1.22}}} & \textbf{\textcolor{green1}{54.72 {\scriptsize ± 0.51}}} & \textbf{\textcolor{green1}{76.47 {\scriptsize ± 0.62}}} & \textbf{\textcolor{red}{74.90}} {\footnotesize \textbf{40.8}$\uparrow$}\\
+        {\footnotesize \textbf{{\framework}-SAGE(our)}} & 74.52 {\scriptsize ± 0.56} & \textbf{\textcolor{red}{53.94 {\scriptsize ± 0.82}}} & \textbf{\textcolor{cyan}{76.19 {\scriptsize ± 0.75}}} & 74.52 {\footnotesize \textbf{40.4}$\uparrow$}\\
+        \bottomrule
+
+    \end{tabular}
+    \caption{\textbf{Comparison under 99.5\% uniform feature missing: vanilla GNN, MPP-Tuned, and {\framework} with common imputation methods on classic datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.
+}
+    \label{tab:uniform_mr_toy}
+\end{table}
+\endgroup

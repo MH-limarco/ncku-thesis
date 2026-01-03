@@ -1,0 +1,248 @@
+% ------------------------------------------------
+\StartChapter{Experiment}{chapter:experiment}
+% ------------------------------------------------
+
+\section{Experimental Setup}
+To thoroughly evaluate the effectiveness and robustness of our proposed framework and related methods,
+we conduct extensive experiments under diverse and challenging settings.
+This section details the datasets, baseline models, training configurations, missing data protocols,
+and evaluation strategies adopted throughout this work. The following subsections provide a comprehensive overview of our experimental protocol.
+
+\subsection{Datasets}
+\input{./context/5-experiment/1-datasets}
+We conduct experiments on eight widely-used node classification benchmark datasets, including three classic small-scale datasets — \textbf{Cora, CiteSeer, and PubMed} as well as five medium-scale datasets: Computers, Photo, WikiCS, CS, and Physics. Key statistics for each dataset, such as the number of nodes, edges, feature dimensions, and classes, are summarized in Table 5.1. All tasks are formulated as node classification and evaluated primarily by accuracy, ensuring consistent and comparable results across different graph scales and complexities.
+
+\subsection{Compared Methods}
+Our experiments involve a diverse range of baseline and state-of-the-art models. For imputation,
+we include \textbf{Zero, LP, RMGCNN, GCNMF, PaGNN, FP, PCFI} and our proposed \textbf{APCFI}.
+
+For SOTA graph learning models, we benchmark our proposed \textbf{{\framework}} framework alongside representative methods including \textbf{TunedGNN, GraphGPS, NAGphormer, Exphormer, GOAT, NodeFormer, SGFormer} and \textbf{Polymormer}.
+This comprehensive setup allows for fair and rigorous comparison with both traditional and recent approaches.
+
+\subsection{Training Details}
+All models are trained using the Adam optimizer. Learning rates are tuned with Optuna to ensure optimal hyperparameter configurations. We use full-batch training for all datasets. The number of training epochs follows the settings from the TunedGNN framework. To guarantee reproducibility, fixed random seeds are adopted throughout. All experiments are conducted on a workstation equipped with an NVIDIA RTX 4090 (24GB VRAM), AMD Ryzen 9 7900 CPU, and 64 GB DDR5 RAM.
+
+\subsection{Missing Data Settings}
+To simulate incomplete information, we systematically introduce missing data under two settings: \textbf{feature missing} and \textbf{edge missing}. Feature missing includes both uniform (random) and structural (patterned) masking, with missing rates set to 0.0, 0.3, 0.6, 0.9, and the extreme 0.995. Edge missing uses random masking with rates of 0.0, 0.3, 0.6, and 0.9. Each method is evaluated across these diverse missing scenarios, highlighting robustness under challenging conditions.
+
+
+\subsection{Dataset Split Strategy}
+To ensure fairness and reproducibility, we adopt different data split strategies based on the evaluation focus. For imputation algorithm comparison (Section 5.2), we use the split protocol from the original PCFI paper. For SOTA and overall model comparisons (Sections 5.5/5.6), we adopt the split and random seed settings of TunedGNN. All split protocols and random seeds are fully disclosed, enabling the community to reproduce and benchmark results reliably.
+
+
+\section{Imputation Performance Analysis}
+To comprehensively evaluate the effectiveness and efficiency of different feature imputation methods under severe missing scenarios, we compare our proposed APCFI with classic baselines FP and PCFI, as well as a range of recent imputation algorithms.
+
+\subsection{Efficiency Comparison}
+Table~\ref{tab:imputation-runtime} reports the runtime of FP, PCFI, and APCFI across several representative benchmark datasets.
+FP exhibits the highest computational efficiency, with an average runtime of 0.062 seconds per run.
+In contrast, PCFI is significantly more computationally expensive,
+with an average runtime of 85.97 seconds,
+and even exceeding 250 seconds on certain datasets such as CiteSeer.
+Remarkably, APCFI achieves an average runtime of 0.39 seconds,
+which is only marginally slower than FP but over 200 times faster than PCFI in most cases.
+Supplementary bar charts (see Figure S1) further illustrate that the efficiency gap between APCFI and PCFI remains consistently large across all datasets,
+confirming APCFI’s lightweight design and its suitability for large-scale or time-sensitive applications.
+\input{./context/5-experiment/2-imputation_runtime}
+
+
+\subsection{Accuracy under High Missing Rates}
+Table~\ref{tab:imputation} presents a detailed comparison of imputation accuracy (\%) under structural and uniform missing patterns at high missing rates (up to 0.9 or 0.995) across five datasets. APCFI consistently matches or outperforms the best-performing baselines, with average accuracy and rank nearly identical to PCFI. Specifically, under structural missing,
+APCFI attains an average accuracy of 74.77\% and an average rank of 3.6, close to PCFI’s 76.66\% and 2.7. Under uniform missing, APCFI achieves an average accuracy of 78.30\% (rank 3.8), again closely trailing PCFI. In contrast, traditional baselines (Zero, LP, PaGNN) and several learning-based approaches (e.g., sRMGCNN, GCNMF) lag significantly behind, with some suffering from out-of-memory issues under extreme settings.
+Supplementary bar plots (Figure S2) visually confirm that the accuracy of APCFI and PCFI are nearly indistinguishable across all benchmarks.
+
+\begin{landscape}
+\begin{table}[ht]
+ \centering
+
+\input{./context/5-experiment/3-imputation}
+
+\end{table}
+\end{landscape}
+
+
+
+\subsection{Summary}
+In summary, APCFI successfully combines the computational efficiency of FP with the superior accuracy of PCFI, making it a highly robust and practical solution for feature imputation in graph learning. Its exceptional stability under extreme missing scenarios and ability to scale to large graphs provide strong evidence of its applicability for real-world tasks.
+
+\section{State-of-the-Art Performance Comparison under Complete Scenario}
+
+Tables~\ref{tab:sota_toy} and~\ref{tab:sota} summarize the comparative results of {\framework} and a suite of state-of-the-art GNN models—including both classic backbones and recent transformer- or attention-based architectures—across a variety of benchmark datasets, all under the standard complete data setting. Of particular note, both {\framework}-GCN/SAGE and the tuned GCN/SAGE variants consistently deliver the best or near-best average accuracy across all datasets, as highlighted in the average rows of both tables. Although certain transformer- or attention-based SOTA models (such as GraphGPS, NodeFormer, or GOAT) achieve impressive results on specific datasets, their average performance is generally less stable and often falls behind the tuned and {\framework} variants.
+
+This observation highlights the core strength of {\framework} and the tuned GNN baselines: robustness and consistency. Rather than focusing solely on maximizing peak performance for a specific dataset, our framework is designed for strong generalization and dependable results across a wide range of scenarios. The fact that {\framework} achieves top-tier average accuracy—even though its primary goal is to address challenges arising from incomplete and missing data—further supports its value as a highly practical, reliable solution for both research and deployment.
+
+In conclusion, while many recent SOTA models leverage large-scale attention or transformer mechanisms to excel on select benchmarks, {\framework} distinguishes itself by offering a stable, high-performing, and versatile foundation. We encourage both researchers and practitioners to consider not only peak accuracy but also average performance and robustness when evaluating GNN models—a principle central to the design and empirical validation of {\framework}.
+
+\input{./context/5-experiment/11-sota_toy}
+
+\input{./context/5-experiment/12-sota}
+
+\section{Efficiency Analysis}
+To thoroughly assess the resource efficiency of the proposed {\framework} framework and its MPP pruning strategy, we analyze the computational cost, inference speed, and model accuracy under different pruning rates.
+
+\subsection{Computational Cost and Inference Speed}
+As shown in Table~\ref{tab:efficency_float_inference}, increasing the MPP prune rate from 0.0 to 0.9 leads to a dramatic reduction in computational cost (measured by GFLOPs) and inference time. Specifically, the GFLOPs decrease from 275.01 to 25.67, while the inference time drops from 15.76 ms to just 2.79 ms—a more than 5-fold improvement in efficiency. This demonstrates the significant resource-saving benefits brought by the MPP pruning mechanism.
+\input{./context/5-experiment/10-efficiency_float_inference}
+
+\subsection{Total Training Time}
+A similar trend is observed in total training time (Figure~\ref{fig:pruned_total_training_time}). As the prune rate increases, the overall training duration, including the pruning step, decreases substantially—from 60.04 seconds at no pruning to 18.48 seconds at a 0.9 prune rate. This highlights that MPP not only accelerates inference but also significantly shortens the entire training pipeline, making it suitable for large-scale or resource-constrained applications.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{context/fig/pruned_total_training_time}
+    \caption{\textbf{Total training time (including pruning) of the MPP-pruned GCN model on the CS dataset under different prune rates.} The results show that higher prune rates significantly reduce total training time, demonstrating the efficiency of the MPP pruning strategy.}
+    \label{fig:pruned_total_training_time}
+\end{figure}
+
+\subsection{Accuracy-Efficiency Trade-off and Sweet Spot}
+A key finding is the presence of a "sweet spot" for pruning. As shown in Figure\ref{fig:physics_prune_acc}, both GCN and SAGE models maintain exceptionally high test accuracy across the Physics dataset at moderate prune rates. In particular, when the prune rate is set to 0.6–0.7, the test accuracy remains close to the unpruned baseline (around 97.4\% for GCN and 97.0\% for SAGE), while computational cost and training/inference times are dramatically reduced. This indicates that a prune rate in the range of 0.6–0.7 achieves an optimal balance between efficiency and predictive performance. Although higher prune rates (e.g., 0.8–0.9) yield further speed-ups, they come at the expense of a noticeable accuracy drop, which is only recommended in extreme efficiency-demanding scenarios.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{context/fig/physics_prune_acc}
+    \caption{\textbf{Test accuracy of SAGE and GCN models on the Physics dataset under different MPP prune rates.} The results show that both models maintain high accuracy as the prune rate increases, with only minor performance degradation observed at higher prune rates.}
+
+    \label{fig:physics_prune_acc}
+\end{figure}
+
+\subsection{Overall Resource Efficiency}
+Compared with mainstream GNNs, MLPs, and recent SOTA graph models, the {\framework} framework—thanks to the MPP and MP-RKD modules—consistently achieves a superior trade-off between efficiency and robustness. This makes {\framework} highly competitive for practical deployment, especially in environments with limited computational resources or extreme data incompleteness.
+
+
+\section{Performance Comparison under Extreme Missing Rates}
+
+To comprehensively evaluate the robustness of various models, we benchmark {\framework} and a range of baselines under three extreme missing scenarios: edge missing, uniform feature missing, and structural feature missing. For each scenario, we summarize accuracy and performance ranking in detail across classic and medium-scale datasets.
+
+\subsection{Edge Missing}
+\input{./context/5-experiment/14-edge_mr_tunedgcn}
+\input{./context/5-experiment/13-edge_mr_prism}
+
+
+Tables~\ref{tab:edge mr tuned GCN} and~\ref{tab:edge mr prism GCN} show that as the edge missing rate increases (from 30\% up to 90\%), the accuracy of classic and tuned GNNs, such as TunedGCN, drops sharply—for example, on the Photo dataset at 90\% edge missing, TunedGCN achieves only 76.42\% accuracy. In contrast, {\framework}-GCN retains 80.39\% accuracy, outperforming the teacher model by nearly 4\%. Similar patterns are observed on other datasets, confirming that {\framework} maintains a clear advantage as the graph structure deteriorates. Notably, the relative decrease in {\framework}’s accuracy is smaller than that of the GNN baselines, highlighting its superior tolerance to structural corruption.
+
+\subsection{Uniform Feature Missing}
+\input{./context/5-experiment/15-comp_mr_u_toy}
+\input{./context/5-experiment/17-comp_mr_u}
+As detailed in Tables~\ref{tab:toy mr u} and~\ref{tab:medium mr u}, the uniform feature missing scenario—especially at the extreme 99.5\% missing rate—leads to dramatic performance drops for all models. Here, MPP-tuned GNNs with robust imputation (e.g., APCFI) achieve the highest accuracy, while {\framework}’s performance remains stable but does not exceed that of the teacher GNN (e.g., {\framework}-GCN closely follows MPP-tuned GCN). For example, on the Computers dataset, MPP-tuned GCN reaches 64.32\% at 99.5\% missing, while {\framework} attains 63.84\%. The accuracy gap is generally less than 1\%, but {\framework} never surpasses the teacher model, confirming that knowledge distillation cannot overcome the feature information bottleneck.
+
+\subsection{Structural Feature Missing}
+\input{./context/5-experiment/16-comp_mr_s_toy}
+\input{./context/5-experiment/18-comp_mr_s}
+
+Tables~\ref{tab:toy mr s} and~\ref{tab:medium mr s} further illustrate that under systematic structural feature missing, robust imputation remains critical for all methods. In some cases, GraphSAGE with FP achieves the best accuracy (e.g., 77.13\% on WikiCS), but MPP-tuned models and {\framework} both deliver highly stable performance and consistently rank among the top models. {\framework}’s results, however, are always on par with, but not superior to, its tuned GNN teacher.
+
+\textbf{Summary and Insights.}
+Across all tables, the experimental results confirm that {\framework} provides outstanding robustness and efficiency in edge missing scenarios, often surpassing the teacher GNN. In contrast, for both uniform and structural feature missing, {\framework}’s performance ceiling is limited by the teacher model.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/mr_structural_physics.png}
+        \caption{}
+        \label{fig:mr_structural_physics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/mr_uniform_physics.png}
+        \caption{}
+        \label{fig:mr_uniform_physics}
+    \end{subfigure}
+    \caption{}
+    \label{fig:mr_physics}
+\end{figure}
+
+
+\section{Ablation Study}
+
+To dissect the individual and combined contributions of each core module in the {\framework} framework, we conduct extensive ablation studies on two representative datasets (Photo and CS) with both GCN and GraphSAGE backbones. The three key modules evaluated are the tuned backbone, Mirror Projection Pruning (MPP), and Mirror Projection Knowledge-inspired Reliable Distillation (MP-RKD).
+
+\input{./context/5-experiment/4-ablation_gcn}
+For the GCN backbone, we systematically evaluate all module combinations. When all modules are disabled, the model yields the lowest accuracy, with inference latency at a moderate level. Enabling the tuned module alone significantly improves accuracy, but also incurs a notable increase in both training speed and inference time. The addition of MPP to the tuned model preserves high accuracy while substantially improving both training and inference efficiency—mitigating the overhead introduced by the tuned design. When all three modules are enabled, the model achieves the best or near-best accuracy and the lowest inference latency among all combinations.
+\textbf{In these experiments, the training speed reported outside the parentheses in Table~\ref{tab:ablation_gcn} refers to the KD (student) model, while the value in parentheses indicates the mpp-tuned (teacher) model’s training speed. The actual end-to-end training cost is the sum of both steps, reflecting the two-stage training pipeline.}
+
+
+
+A similar trend is observed with the GraphSAGE backbone. The tuned module alone improves accuracy but slows down both training and inference. Incorporating MPP into the tuned model restores high efficiency without sacrificing performance. Once again, the best overall results—highest accuracy and lowest inference time—are attained when all three modules are combined. The 2-step training structure of MP-RKD is reflected in the speed reporting format as described above (see Table~\ref{tab:ablation_sage}).
+\input{./context/5-experiment/5-ablation_sage}
+
+These results demonstrate that the joint design of tuned, MPP, and MP-RKD modules is critical for achieving the best trade-off among accuracy, training efficiency, and inference latency. The effectiveness of this design is consistently validated across different backbone architectures, highlighting the universality and robustness of the {\framework} framework. For a more detailed analysis of the internal mechanisms of the MP-RKD module, please refer to Section 5.6.
+
+
+\section{Module-wise Internal Ablation}
+
+\subsection{tunedGNN Robustness to Missing Values}
+
+To thoroughly evaluate the effectiveness of architecture tuning, we compare the robustness of classic and tuned GNNs (specifically, MPP-tuned GCN and SAGE) under varying degrees of feature and edge missingness. As illustrated in Figures~\ref{fig:uniform_missing_robustness} and~\ref{fig:structural_missing_robustness}, tuned GNNs consistently outperform their classic counterparts across both Physics and WikiCS datasets under both uniform and structural missing scenarios.
+
+Notably, tuned GNNs exhibit a much slower decline in accuracy as the missing ratio increases, maintaining significantly higher performance even under extremely high missing rates (up to 90\%). In contrast, classic GNNs experience dramatic performance drops under similar conditions, often resulting in severe accuracy degradation or even failure.
+
+This robustness is consistent across different types of datasets and missing patterns, confirming the broad applicability and effectiveness of architecture tuning. Our results highlight that proper model tuning—through enhancements such as residual connections, normalization layers, and hyperparameter optimization—serves as a practical and impactful approach for mitigating the adverse effects of missing data. Thus, architecture tuning should be considered a standard practice when deploying GNNs in real-world scenarios characterized by high data incompleteness.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/uniform_physics.png}
+        \caption{Test accuracy of classic and tuned GNN models on the Physics dataset under different Uniform missing ratios.}
+        \label{fig:uniform_physics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/uniform_wikics.png}
+        \caption{Test accuracy of classic and tuned GNN models on the WikiCS dataset under different Uniform missing ratios.}
+        \label{fig:uniform_wikics}
+    \end{subfigure}
+    \caption{\textbf{Robustness of tuned and classic GNNs to Uniform missing on Physics and WikiCS datasets.}
+Test accuracy is reported under different uniform missing ratios, showing the superior robustness of tuned GNNs against uniform feature missing.
+}
+    \label{fig:uniform_missing_robustness}
+\end{figure}
+
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/structural_physics.png}
+        \caption{Test accuracy of classic and tuned GNN models on the Physics dataset under different Structural missing ratios.}
+        \label{fig:structural_physics}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.47\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{.//context//fig/structural_wikics.png}
+        \caption{Test accuracy of classic and tuned GNN models on the WikiCS dataset under different Structural missing ratios.}
+        \label{fig:structural_wikics}
+    \end{subfigure}
+    \caption{\textbf{Robustness of tuned and classic GNNs to Structural missing on Physics and WikiCS datasets.}
+Test accuracy is reported under different uniform missing ratios, showing the superior robustness of tuned GNNs against uniform feature missing.
+}
+    \label{fig:structural_missing_robustness}
+\end{figure}
+
+
+
+\subsection{Internal Ablation of MP-RKD Components}
+To further elucidate the design principles of the MP-RKD module, we perform a comprehensive ablation study on its three core components—RKD, MP-MLP, and CWD-loss—across datasets of varying scales and structures. The results, summarized in Tables 5.6–5.9, reveal nuanced patterns of component contribution depending on dataset size.
+
+\textbf{On classic datasets} (See Table~\ref{tab:ablation_kd_gcn_toy} and Table~\ref{tab:ablation_kd_sage_toy}), the necessity of enabling all three components is less pronounced. For certain datasets, such as PubMed, incorporating MP-MLP alone already yields substantial accuracy gains, while adding CWD-loss provides only marginal further improvements. In many cases, a combination of RKD and MP-MLP approaches the best achievable performance, and the full configuration (all components enabled) only slightly surpasses or matches this level. This suggests that on simpler or more homogeneous graphs, the benefits of CWD-loss may be limited.
+
+\input{./context/5-experiment/6-ablation_kd_gcn_toy}
+
+\input{./context/5-experiment/7-ablation_kd_sage_toy}
+
+\textbf{On medium-scale datasets} (See Table~\ref{tab:ablation_kd_gcn} and Table~\ref{tab:ablation_kd_sage}), however, a different trend emerges. Here, enabling all three components consistently delivers the highest or near-highest average accuracy across all datasets. Removing any single component typically leads to a drop in performance, indicating strong complementary effects among the three mechanisms. Notably, the contribution of CWD-loss becomes more apparent on these larger and potentially more heterogeneous graphs, where knowledge regularization and feature-level alignment play a more critical role in preserving model robustness.
+
+In summary, the internal ablation analysis highlights the flexibility and adaptability of the MP-RKD design. While a minimal configuration may suffice for certain small-scale datasets, the full module—with RKD, MP-MLP, and CWD-loss jointly enabled—offers the most consistent and robust improvements across a broad range of graph learning scenarios. This design flexibility allows {\framework} to be tailored to diverse practical applications, achieving the best trade-off between performance and generalizability.
+
+\input{./context/5-experiment/8-ablation_kd_gcn}
+
+\input{./context/5-experiment/9-ablation_kd_sage}
+
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

@@ -1,0 +1,13 @@
+% ------------------------------------------------
+\StartAbstract
+% ------------------------------------------------
+
+Graph Neural Networks (GNNs) have demonstrated remarkable performance in various graph-structured data analysis tasks. However, their practical deployment is severely hindered by a trio of interconnected challenges: incomplete data, high training costs, and prohibitive inference overhead. While existing methods tackle these issues in isolation, they fail to provide a holistic solution.
+
+To address this gap, we introduce \textbf{{\framework}} ({\frameworkname}), a unified framework built on the core principle of \textbf{synergistic optimization} across the entire GNN pipeline. Our framework actualizes this philosophy by first ensuring data integrity with an efficient feature imputation technique. It then employs a novel proxy-based pruning strategy to create a lightweight yet robust GNN teacher, whose knowledge is subsequently distilled into an even more efficient MLP student for fast inference.
+
+Extensive experiments show that {\framework} not only maintains high accuracy on datasets with up to 99.5\% of features missing but also achieves over a \textbf{5x reduction in inference time} compared to its baseline GNN teacher. Our work demonstrates that this holistic approach provides a practical and powerful pathway for building robust, efficient, and deployable GNNs for real-world applications.
+
+% ------------------------------------------------
+\EndAbstract
+% ------------------------------------------------

@@ -1,0 +1,42 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{4}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.1} % 增加行高，表格更寬鬆
+
+\begin{table}[H]
+ \centering
+\begin{tabular}{L{0.075\textwidth}L{0.075\textwidth}L{0.075\textwidth}|C{0.125\textwidth}C{0.1\textwidth}C{0.105\textwidth}|C{0.125\textwidth}C{0.1\textwidth}C{0.105\textwidth}}
+\hline
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multirow{2}{*}{} &
+\multicolumn{3}{c|}{\textbf{\small Photo}} &
+\multicolumn{3}{c}{\textbf{\small CS}} \\
+\cline{4-9} \textbf{\small tuned}& \textbf{\small MPP} & \textbf{\small MP-KRD} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\small training speed (epoch/s)$\uparrow$} &  \textbf{\small inference time (ms)$\downarrow$} & \textbf{\small Accuracy$\uparrow$}
+ & \textbf{\small training speed (epoch/s)$\uparrow$} &  \textbf{\small inference time (ms)$\downarrow$} \\
+\midrule
+\textcolor{red}{\XSolidBrush} & \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 91.36&	121.73&	3.47&	90.22&	46.44&	8.75 \\
+
+\textcolor{green1}{\CheckmarkBold}& \textcolor{red}{\XSolidBrush}  & \textcolor{red}{\XSolidBrush}  & 95.52&	30.72&	11.38	&95.94&	21.2&	15.76 \\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{red}{\XSolidBrush}  & 95.86&	44.2&	8.21&	95.95&	49.8&	7.99 \\
+
+\textcolor{green1}{\CheckmarkBold}&  \textcolor{green1}{\CheckmarkBold} & \textcolor{green1}{\CheckmarkBold}& \textbf{96.16}&	\textbf{90.57 (44.2)}&	\textbf{2.35}&	\textbf{96.13}&	\textbf{51.66 (49.80)}&	\textbf{6.02} \\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Ablation study of tuned, MPP, and MP-KRD modules on the Photo and CS datasets(GCN Model).} The table reports accuracy, training speed (epoch/s), and inference time (ms) for different module combinations. When MP-KRD is used, values without parentheses denote KD training speed, while values in parentheses indicate GNN training speed.}
+
+\label{tab:ablation_gcn}
+\end{table}
+\endgroup

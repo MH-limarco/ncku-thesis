@@ -1,0 +1,19 @@
+\StartChapter{Generalization Ability}{appendix:ipad_generalization}
+
+\section{Generalization of iPaD to Various GNN Architectures}
+The proposed \textbf{\framework} framework is inherently designed to be model-agnostic, enabling its integration with a wide range of graph neural network (GNN) architectures, including both classical message-passing models and recent state-of-the-art (SOTA) designs.
+Experimental evaluations (Table~\ref{tab:full_comparison_medium}) confirm that iPaD can be successfully applied to diverse backbones such as GCN, GraphSAGE, Polynormer, and SGFormer, consistently delivering substantial inference speed improvements.
+
+However, the performance gains in terms of accuracy are less pronounced when applied to attention-based architectures (e.g., SGFormer, Polynormer).
+This limitation may stem from the intrinsic characteristics of attention mechanisms, where the knowledge distilled from the teacher is encoded in highly adaptive, pairwise attention weights.
+The current iPaD distillation design primarily focuses on message-passing structures and may not effectively capture or transfer the fine-grained relational patterns inherent to attention-based models.
+Despite this, the efficiency enhancement remains significant, demonstrating the framework’s potential for deployment in scenarios where inference speed is prioritized over marginal accuracy improvements.
+
+\input{./context/appendix/versatillity_full}
+
+
+
+
+
+
+

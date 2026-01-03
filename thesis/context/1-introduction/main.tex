@@ -1,0 +1,96 @@
+% ------------------------------------------------
+\StartChapter{Introduction}{chapter:introduction}
+% ------------------------------------------------
+
+Graph Neural Networks (GNNs) have emerged as a fundamental paradigm for learning from graph-structured data~\cite{waikhom2023survey, wu2020comprehensive, khemani2024review}, demonstrating state-of-the-art performance across diverse domains.
+By jointly leveraging both the topological structure of graphs and rich node-level features, GNNs are capable of capturing complex relational dependencies that are often inaccessible to traditional neural architectures~\cite{waikhom2023survey, wu2020comprehensive, khemani2024review}.
+Consider, for instance, a large-scale recommender system: GNNs can effectively model the intricate relationships between users and items to provide personalized recommendations.~\cite{wu2022graph, ying2018graph} \\
+
+However, deploying such powerful models in real-world scenarios is severely hindered by challenges.
+In the context of recommender systems, these challenges manifest as follows~\cite{wu2022graph, jiang2013understanding, zhang2024trustworthy}: (1) many users have sparse interaction histories, leading to \textbf{incomplete data}; (2) training a GNN on billions of user-item interactions incurs \textbf{high training costs}; and (3) generating recommendations in real-time demands \textbf{low inference latency}, which often exceeds the capabilities of large GNNs.
+This thesis introduces a framework designed to holistically address these practical yet critical challenges.
+
+% --- Section 1.1: Motivation ---
+\section{Motivation}
+\label{sec:motivation}
+As the adoption of GNNs in high-stakes applications like recommender systems and social network analysis accelerates, the demand for robust and scalable graph learning becomes increasingly critical.
+In these practical settings, multiple challenges—including missing node features, incomplete graph structures, and limited computational resources—often co-occur and interact unpredictably~\cite{huang2021understanding, mohi2023review, chen2020learning}.
+
+Existing research often addresses these challenges separately, developing targeted solutions for either missing data, training efficiency, or inference cost independently.
+This siloed strategy, however, leads to a significant practical gap.
+A solution that excels at data imputation may still be too computationally expensive to train or deploy.
+Conversely, an efficient, pruned model might fail catastrophically when faced with the noisy and incomplete data typical of real-world environments.
+Consequently, a unified framework that addresses these challenges \textbf{simultaneously} is not merely a convenience, but a necessity for robust, practical deployment.
+To fully appreciate the need for this integrated approach, we first dissect the distinct yet interrelated challenges limiting the practical use of GNNs.
+
+
+% --- Section 1.2: Challenges ---
+\section{Challenges}
+\label{sec:challenges}
+Despite recent advances in GNN research, several persistent challenges continue to impede the reliable and efficient deployment of GNNs in real-world scenarios:
+
+\subsection{Incomplete Data}
+Real-world graphs are often incomplete, containing absent node features or missing edges. In our recommender system example, this corresponds to new users with no purchase history.
+This missing information fundamentally disrupts the message-passing mechanism of GNNs, often leading to suboptimal representations and substantially degraded predictive performance~\cite{PaGNN, zhou2020graph}.
+This data incompleteness not only impacts the final accuracy but also complicates the training of deeper, more expressive models.
+
+\subsection{High Training Cost}
+The recursive neighborhood aggregation and large parameter space inherent to many powerful GNNs cause training costs to scale rapidly with graph size and model depth~\cite{khemani2024review, huan2021search, ma2022graph}.
+Training a GNN on a graph with millions of users and items, for example, demands significant computational and memory resources, making it a costly and time-consuming endeavor, especially in resource-constrained settings.
+This high training cost is further exacerbated when models need to be large and deep to handle noisy, incomplete data. Ultimately, even if a powerful model can be trained, its practical utility is limited by its inference efficiency.
+
+\subsection{Inefficient Inference}
+At inference time, conventional GNNs require multi-hop neighborhood aggregation for each prediction.
+To recommend a single item to a user, the model might need to access information from thousands of neighboring nodes, introducing considerable computational overhead~\cite{wu2022graph, gao2023survey,zheng2022graph}.
+This inefficiency poses a significant obstacle for deployment in latency-sensitive applications like real-time recommendation.
+This often drives the use of smaller, simpler models, which in turn are more vulnerable to the data incompleteness issues discussed earlier, thus creating a vicious cycle of compromises.
+
+\subsection{Lack of Unified Solutions}
+These challenges reveal that most existing solutions focus on addressing individual issues in isolation.
+There is a clear lack of a holistic solution capable of addressing the full spectrum of real-world constraints from data imperfection to deployment efficiency.
+This gap underscores the need for the unified and modular framework proposed in this thesis.
+
+% --- Section 1.3: Research Goal ---
+\section{Research Goal}
+\label{sec:goal}
+In direct response to the challenges of data incompleteness, high training costs, and inference inefficiency, the primary objective of this research is to design and develop a unified, modular framework. Our central hypothesis is that a framework \textbf{synergistically integrating} robust imputation, pre-training pruning, and architecture-aligned distillation could overcome these limitations in a holistic way.
+
+Specifically, this thesis aims to develop \textbf{{\framework}} ({\frameworkname}), a framework that provides a comprehensive, end-to-end solution by:
+\begin{enumerate}
+    \item Developing a feature imputation method \textbf{Approximate Pseudo-Confidence Feature Imputation (APCFI)} that is both robust to severe sparsity and computationally efficient enough for large-scale graphs.
+    \item Designing a novel proxy-based pruning strategy \textbf{Mirror Projection Pruning (MPP)} that reduces model complexity and accelerates training before the most expensive steps, by leveraging the isomorphism between GNNs and MLPs.
+    \item Creating a reliable knowledge distillation mechanism \textbf{Mirror Projection Knowledge-inspired Reliable Distillation (MP-KRD)} that efficiently transfers knowledge from a powerful GNN teacher to a lightweight, fast-inference MLP student, thus completing the pipeline from robust training to efficient deployment.
+\end{enumerate}
+Through this unified approach, we aim to enable the practical deployment of GNNs across a wide range of real-world applications, ensuring strong performance even in challenging and imperfect environments.
+
+% --- Section 1.4: Contributions ---
+\section{Contributions}
+\label{sec:contributions}
+This thesis makes the following key contributions:
+\begin{enumerate}
+    \item \textbf{A Unified, Synergistic Framework:} We introduce \textbf{{\framework}}, a novel framework that systematically and synergistically addresses the three principal challenges of real-world GNN deployment. Its modules are designed to be complementary, where the output of one stage (e.g., the pruned student model from MPP) serves as the ideal input for the next (e.g., the distillation process in MP-KRD).
+
+    \item \textbf{A Highly Efficient Imputation Method (APCFI):} We develop \textbf{APCFI}, a feature imputation method that achieves comparable accuracy to state-of-the-art methods but with a significant \textbf{efficiency breakthrough}, reducing computation time by over 200x on benchmark datasets and making robust imputation practical for large graphs.
+
+    \item \textbf{A Novel Proxy Pruning Paradigm (MPP):} We propose \textbf{MPP}, a pre-training pruning strategy that introduces a new paradigm of proxy-based pruning. By projecting a GNN to an isomorphic MLP, it decouples the complex GNN pruning task from training and effectively leverages mature MLP pruning techniques, significantly reducing computational overhead.
+
+    \item \textbf{An End-to-End Distillation Pipeline (MP-KRD):} We design \textbf{MP-KRD}, an architecture-aligned knowledge distillation mechanism that completes the optimization pipeline. It uniquely uses the pruned MLP generated by MPP as a student, enabling highly efficient inference while preserving the relational reasoning capabilities of the original GNN teacher.
+
+    \item \textbf{Empirical Validation of Robust Architectures:} We are the first to systematically demonstrate that simple architectural modifications in a \textbf{TunedGNN}, such as adding LayerNorm and Dropout, not only improve accuracy on complete data but also serve as a critically effective backbone for enhancing GNN robustness against severe feature missingness.
+\end{enumerate}
+
+% --- Section 1.5: Thesis Organization ---
+\section{Thesis Organization}
+\label{sec:organization}
+This thesis is organized as follows:
+\begin{itemize}
+    \item \textbf{Chapter 2: Related Work} reviews prior research on GNNs with incomplete data, feature imputation, model pruning, and knowledge distillation.
+    \item \textbf{Chapter 3: Problem Statement} formally defines the key challenges addressed in this work and introduces the necessary notations and settings.
+    \item \textbf{Chapter 4: Methodology} details the proposed {\framework} framework and its core modules: APCFI, MPP, TunedGNN, and MP-KRD.
+    \item \textbf{Chapter 5: Experiments} presents the experimental setup, benchmark datasets, baseline methods, and evaluation metrics, followed by a comprehensive analysis of results.
+    \item \textbf{Chapter 6: Conclusion} summarizes the main findings of this study and discusses potential directions for future research on robust and efficient graph neural networks.
+\end{itemize}
+
+% ------------------------------------------------
+\EndChapter
+% ------------------------------------------------

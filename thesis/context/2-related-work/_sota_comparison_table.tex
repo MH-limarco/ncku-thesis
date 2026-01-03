@@ -1,0 +1,30 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+\renewcommand{\arraystretch}{1.25} % 增加行高，表格更寬鬆
+
+\begin{tabular}{L{0.275\textwidth}|C{0.125\textwidth}C{0.125\textwidth}}
+
+\toprule
+\textbf{\small Method} & \textbf{\small {Efficiency}} & \textbf{\small {Robustness}}\\
+\midrule
+GraphGPS~\cite{GPS} & Low & -\\
+NAGphormer~\cite{NAG} & Medium & -\\
+Exphormer~\cite{Exphormer}& Medium & -\\
+GOAT~\cite{GOAT} & Medium & -\\
+NodeFormer~\cite{NodeFormer} & Medium & -\\
+SGFormer~\cite{SGFormer} & Medium & -\\
+Polynormer~\cite{Polynormer} & Medium & -\\
+TunedGNN~\cite{tunedGNN} & High & {\Checkmark}*\\
+\midrule
+\end{tabular}
+\caption{\textbf{High-level comparison of recent SOTA GNN models on efficiency, and robustness.} The asterisk (*) indicates that robustness is not the primary focus of the original paper but is evaluated in our study.}
+\label{tab:method_sota}
+\endgroup

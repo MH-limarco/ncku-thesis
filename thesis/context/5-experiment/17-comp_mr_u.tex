@@ -1,0 +1,56 @@
+% 定義底色
+\definecolor{lightgray}{gray}{0.95}
+\definecolor{blue1}{RGB}{0,128,255}
+\definecolor{orange1}{RGB}{235,120,23}
+\definecolor{green1}{RGB}{20,170,70}
+\definecolor{mygray}{gray}{0.825}
+
+
+\begingroup
+\rowcolors{2}{mygray}{white}
+
+
+\renewcommand{\arraystretch}{1.15} % 增加行高，表格更寬鬆
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{L{0.19\textwidth}|ccccc|C{0.125\textwidth}}
+        \toprule
+        \textbf{\small Model} & \textbf{\small Computer} & \textbf{\small Photo} & \textbf{\small WikiCS} & \textbf{\small CS} & \textbf{\small Physics} & \textbf{\small Accuracy} \\
+        \midrule
+
+        {\footnotesize SGFormer w FP} & 81.98 {\scriptsize ± 3.29} & \textbf{\textcolor{red}{87.18 {\scriptsize ± 2.16}}} & 75.02 {\scriptsize ± 0.30} & 89.21 {\scriptsize ± 1.56} & 93.65 {\scriptsize ± 0.79} & 85.41 \\
+        {\footnotesize Polynormer w FP} & 80.75 {\scriptsize ± 3.15} & \textbf{\textcolor{green1}{89.88 {\scriptsize ± 2.79}}} & 74.38 {\scriptsize ± 0.50} & 90.24 {\scriptsize ± 0.25} & 42.42 {\scriptsize ± 15.97} & 75.53\\
+
+        \midrule
+        {\footnotesize GCN w Zero} & 38.50 {\scriptsize ± 0.04}  & 28.09 {\scriptsize ± 0.19} & 51.03 {\scriptsize ± 0.26} & 22.74 {\scriptsize ± 0.00} & 50.41 {\scriptsize ± 0.00} & 38.15 \\
+        {\footnotesize GCN w FP} & 38.51 {\scriptsize ± 0.38} & 65.25 {\scriptsize ± 4.78} & 71.36 {\scriptsize ± 0.31} & 23.13 {\scriptsize ± 1.17} & 79.25 {\scriptsize ± 3.33} & 55.50 {\footnotesize \textbf{17.4}$\uparrow$}\\
+        {\footnotesize TunedGCN w FP} & \textbf{\textcolor{green1}{88.81 {\scriptsize ± 0.34}}} & 71.48 {\scriptsize ± 1.38} & 74.51 {\scriptsize ± 0.35} & 84.00 {\scriptsize ± 0.51} & \textbf{\textcolor{cyan}{94.60 {\scriptsize ± 0.21}}} & 82.68 {\footnotesize \textbf{44.5}$\uparrow$}\\
+        {\footnotesize \textbf{MPP-TunedGCN w APCFI(our)}} & \textbf{\textcolor{cyan}{88.19 {\scriptsize ± 0.29}}} & 86.47 {\scriptsize ± 1.13} & \textbf{\textcolor{green1}{76.64 {\scriptsize ± 0.34}}} & \textbf{\textcolor{cyan}{91.09 {\scriptsize ± 0.15}}} & 94.52 {\scriptsize ± 0.16} & \textbf{\textcolor{green1}{87.38}} {\footnotesize \textbf{49.2}$\uparrow$}\\
+        {\footnotesize \textbf{{\framework}-GCN(our)}} & \textbf{\textcolor{red}{86.72 {\scriptsize ± 0.36}}} & 86.25 {\scriptsize ± 0.29} & 74.49 {\scriptsize ± 0.32} & 90.00 {\scriptsize ± 0.15} & \textbf{\textcolor{green1}{94.87}} {\scriptsize ± 0.08} & \textbf{\textcolor{cyan}{86.47}} {\footnotesize \textbf{48.3}$\uparrow$}\\
+        \midrule
+
+        {\footnotesize GraphSAGE w Zero} & 55.26 {\scriptsize ± 3.42} & 72.07 {\scriptsize ± 1.56} & 42.94 {\scriptsize ± 0.63} & 60.72 {\scriptsize ± 3.67} & 50.41 {\scriptsize ± 0.00} & 56.28\\
+        {\footnotesize GraphSAGE w FP} & 79.74 {\scriptsize ± 0.45} & 86.48 {\scriptsize ± 0.41} & 71.47 {\scriptsize ± 0.48} & 89.77 {\scriptsize ± 0.35} & 86.67 {\scriptsize ± 1.73} & 82.83 {\footnotesize \textbf{26.6}$\uparrow$}\\
+        {\footnotesize TunedSAGE w FP} & 86.05 {\scriptsize ± 0.35} & 74.72 {\scriptsize ± 3.51} & \textbf{\textcolor{red}{90.23 {\scriptsize ± 0.55}}} & 87.08 {\scriptsize ± 0.50} & 85.18 {\scriptsize ± 2.54} & 85.18 {\footnotesize \textbf{28.9}$\uparrow$}\\
+        {\footnotesize \textbf{MPP-TunedSAGE w APCFI(our)}} & 86.69 {\scriptsize ± 0.35} & 86.20 {\scriptsize ± 3.39} & \textbf{\textcolor{cyan}{75.12 {\scriptsize ± 0.22}}} & \textbf{\textcolor{red}{90.80 {\scriptsize ± 0.16}}} & 92.69 {\scriptsize ± 1.42} & 86.30 {\footnotesize \textbf{30.0}$\uparrow$}\\
+        {\footnotesize \textbf{{\framework}-SAGE(our)}} & 84.57 {\scriptsize ± 0.68} & \textbf{\textcolor{cyan}{87.73 {\scriptsize ± 2.15}}} & 73.63 {\scriptsize ± 0.41}& \textbf{\textcolor{green1}{91.69 {\scriptsize ± 0.27}}} & \textbf{\textcolor{red}{94.59 {\scriptsize ± 0.25}}} & \textbf{\textcolor{red}{86.44}} {\footnotesize \textbf{30.2}$\uparrow$}\\
+        \bottomrule
+
+    \end{tabular}
+    \caption{\textbf{Comparison under 99.5\% uniform feature missing: vanilla GNN, SGFormer, Polynormer, TunedGNN, MPP-Tuned, and {\framework} with common imputation methods on medium datasets.} Model names indicate the imputation strategy. The best results are highlighted in \textbf{\textcolor{green1}{green}}, the second-best in \textbf{\textcolor{cyan}{cyan}}, and the third-best in \textbf{\textcolor{red}{red}}.
+}
+    \label{tab:uniform_mr_medium}
+\end{table}
+\endgroup
+
+
+
+
+
+
+
+
+
+
+
